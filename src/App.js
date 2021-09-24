@@ -1,25 +1,32 @@
-import logo from './logo.svg';
-import './App.css';
+import React, {useEffect} from "react";
+import {
+    Switch,
+    Route,
+    useLocation
+} from "react-router-dom";
+import SideBar from "./sidebar/SideBar";
+import Home from "./home/Home";
+import SignIn from "./signin/SignIn";
+import SignUp from "./signup/SignUp";
+import Box from "@material-ui/core/Box";
+
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    const pathname = useLocation().pathname;
+    const noHeaderArr = ['/signin', '/signup']
+
+    return (
+        <>
+            {
+                !noHeaderArr.includes(pathname) ? <SideBar/> : null
+            }
+            <Switch>
+                <Route path='/' exact component={Home}/>
+                <Route path='/signin' exact component={SignIn}/>
+                <Route path='/signup' exact component={SignUp}/>
+            </Switch>
+        </>
+    );
 }
 
 export default App;
