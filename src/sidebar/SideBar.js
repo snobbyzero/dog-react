@@ -25,7 +25,6 @@ const useStyles = makeStyles({
 export default function SideBar() {
     const classes = useStyles();
 
-    const drawerWidth = 240;
 
     const links = [
         {"title": "Home", "icon": <PetsIcon/>},
@@ -52,7 +51,7 @@ export default function SideBar() {
     return (
         <Box>
             <CssBaseline/>
-            <AppBar position="sticky" style={{zIndex: 1251}}>
+            <AppBar position="static" style={{zIndex: 1251}}>
                 <Toolbar>
                     <Typography variant="h6" noWrap component="div">
                         жЫвотные

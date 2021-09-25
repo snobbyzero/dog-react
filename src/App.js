@@ -20,11 +20,13 @@ function App() {
             {
                 !noHeaderArr.includes(pathname) ? <SideBar/> : null
             }
+            <Box style={{marginLeft: 300}}>
             <Switch>
                 <Route path='/' exact component={Home}/>
                 <Route path='/signin' exact component={SignIn}/>
                 <Route path='/signup' exact component={SignUp}/>
             </Switch>
+            </Box>
         </>
     );
 }
