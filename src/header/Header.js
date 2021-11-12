@@ -7,6 +7,7 @@ import React from "react";
 import {makeStyles} from "@material-ui/core/styles";
 import {Memory} from "@material-ui/icons";
 import {Typography} from "@material-ui/core";
+import Box from "@material-ui/core/Box";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -24,12 +25,15 @@ const useStyles = makeStyles((theme) => ({
     appbar: {
         backgroundImage: "url(/header.png)",
     },
-    signin: {
-
-    },
+    signin: {},
     name: {
         flexGrow: 1
     },
+    logo_box: {
+        flexGrow: 1,
+    },
+    logo: {
+    }
 }));
 
 export default function Header() {
@@ -39,9 +43,9 @@ export default function Header() {
         <div className={classes.root}>
             <AppBar position="static" className={classes.appbar}>
                 <Toolbar style={{height: "90px"}}>
-                    <Typography color="secondary" variant="h3" className={classes.name}>
-                        жЫвотные
-                    </Typography>
+                    <Box className={classes.logo_box}>
+                        <img className={classes.logo} src="/logo_right.png"/>
+                    </Box>
                     <Button className={classes.signin}>
                         <Typography variant="h5" color="secondary">
                             Sign In

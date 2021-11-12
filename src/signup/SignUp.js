@@ -24,7 +24,8 @@ const useStyles = makeStyles((theme) => ({
     },
     avatar: {
         margin: theme.spacing(1),
-        backgroundColor: theme.palette.secondary.main,
+        width: "250px",
+        height: "250px"
     },
     form: {
         width: '100%', // Fix IE 11 issue.
@@ -49,6 +50,13 @@ export default function SignUp() {
     const [error, setError] = useState("");
     const [email, setEmail] = useState("");
     const [emailError, setEmailError] = useState("");
+    const [username, setUsername] = useState("");
+    const [usernameError, setUsernameError] = useState("");
+    const [fullname, setFullname] = useState("");
+    const [fullnameError, setFullnameError] = useState("");
+    const [phone, setPhone] = useState("");
+    const [phoneError, setPhoneError] = useState("");
+    const [avatarUrl, setAvatarUrl] = useState("")
     const [password, setPassword] = useState("");
     const [passwordError, setPasswordError] = useState("");
     const [rememberMe, setRememberMe] = useState(false);
@@ -59,15 +67,38 @@ export default function SignUp() {
     }
 
     const signup = async () => {
-
+        axios.post("https://fast-api-walking-v1.herokuapp.com/walker", {
+            user_info: {
+                username: username,
+                hashed_password: password,
+                fullname: fullname,
+                phone: phone,
+                email: email,
+                avatar_url: avatarUrl
+            },
+            walker_info: {
+                rating: 0,
+                counter: 0,
+                region_code: 56,
+                price_per_hour: 500,
+                practice_in_year: 0,
+                min_dog_size_in_kg: 10,
+                max_dog_size_in_kg: 20,
+                min_dog_age_in_years: 1,
+                max_dog_age_in_years: 20,
+                schedule: "Я могу гулять по понедельникам с 9:00 до 18:00",
+                about_walker: "Я Иван Чернышев, дотер"
+            }
+        })
+            .then(response => {
+                console.log(response);
+            })
     }
 
     return (
         <Container component="main" maxWidth="xs">
             <div className={classes.paper}>
-                <Avatar className={classes.avatar}>
-                    <Memory/>
-                </Avatar>
+                <img className={classes.avatar} src={"/logo_bot.png"}/>
                 <Typography component="h1" variant="h5">
                     Sign Up
                 </Typography>
@@ -138,6 +169,7 @@ export default function SignUp() {
                         variant="contained"
                         color="primary"
                         className={classes.submit}
+                        onClick={signup}
                     >
                         {loading ? <CircularProgress size={24} color="inherit"/> : "Sign Up"}
                     </Button>

@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Typography} from "@material-ui/core";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
@@ -24,7 +24,8 @@ const useStyles = makeStyles((theme) => ({
     },
     avatar: {
         margin: theme.spacing(1),
-        backgroundColor: theme.palette.secondary.main,
+        width: "250px",
+        height: "250px"
     },
     form: {
         width: '100%', // Fix IE 11 issue.
@@ -49,8 +50,8 @@ export default function SignIn() {
     const history = useHistory();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-    const [email, setEmail] = useState("");
-    const [emailError, setEmailError] = useState("");
+    const [username, setUsername] = useState("");
+    const [usernameError, setUsernameError] = useState("");
     const [password, setPassword] = useState("");
     const [passwordError, setPasswordError] = useState("");
     const [rememberMe, setRememberMe] = useState(false);
@@ -61,15 +62,53 @@ export default function SignIn() {
     }
 
     const signin = async () => {
+    }
 
+
+    const buttonClick = async () => {
+        /*
+        axios.post("https://fast-api-walking-v1.herokuapp.com/walker", {
+            user_info: {
+                username: "ivan",
+                hashed_password: "qwerty",
+                fullname: "ivan chernyshev ivanovich",
+                phone: "89004444333",
+                email: "test@gmail.com",
+                avatar_url: "https://cs.pikabu.ru/post_img/big/2013/12/31/9/1388645055_1336973337.jpg"
+            },
+            walker_info: {
+                rating: 0,
+                counter: 0,
+                region_code: 56,
+                price_per_hour: 500,
+                practice_in_year: 0,
+                min_dog_size_in_kg: 10,
+                max_dog_size_in_kg: 20,
+                min_dog_age_in_years: 1,
+                max_dog_age_in_years: 20,
+                schedule: "Я могу гулять по понедельникам с 9:00 до 18:00",
+                about_walker: "Я Иван Чернышев, дотер"
+            }
+        })
+            .then(response => {
+                console.log(response);
+            })
+
+         */
+        console.log(username);
+        console.log(password);
+        axios.post("https://fast-api-walking-v1.herokuapp.com/user/auth", {
+            login: username,
+            password: password
+        }).then(res => {
+            console.log(res);
+        })
     }
 
     return (
         <Container component="main" maxWidth="xs">
             <div className={classes.paper}>
-                <Avatar className={classes.avatar}>
-                    <Memory/>
-                </Avatar>
+                    <img className={classes.avatar} src={"/logo_bot.png"}/>
                 <Typography component="h1" variant="h5">
                     Sign In
                 </Typography>
@@ -79,15 +118,13 @@ export default function SignIn() {
                         margin="normal"
                         required
                         fullWidth
-                        id="email"
-                        label="Email Address"
-                        name="email"
-                        autoComplete="email"
+                        id="username"
+                        label="Username"
                         autoFocus
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        error={emailError !== ""}
-                        helperText={emailError}
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        error={usernameError !== ""}
+                        helperText={usernameError}
                     />
                     <TextField
                         variant="outlined"
@@ -125,6 +162,7 @@ export default function SignIn() {
                         variant="contained"
                         color="primary"
                         className={classes.submit}
+                        onClick={buttonClick}
                     >
                         {loading ? <CircularProgress size={24} color="inherit"/> : "Sign In"}
                     </Button>
