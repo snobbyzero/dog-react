@@ -4,11 +4,11 @@ import {
     Route,
     useLocation
 } from "react-router-dom";
-import SideBar from "./sidebar/SideBar";
 import Home from "./home/Home";
 import SignIn from "./signin/SignIn";
 import SignUp from "./signup/SignUp";
 import Box from "@material-ui/core/Box";
+import Header from "./header/Header";
 
 
 function App() {
@@ -18,9 +18,9 @@ function App() {
     return (
         <>
             {
-                !noHeaderArr.includes(pathname) ? <SideBar/> : null
+                !noHeaderArr.includes(pathname) ? <Header/> : null
             }
-            <Box style={{marginLeft: 300}}>
+            <Box>
             <Switch>
                 <Route path='/' exact component={Home}/>
                 <Route path='/signin' exact component={SignIn}/>
