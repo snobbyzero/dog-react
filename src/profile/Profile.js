@@ -78,17 +78,17 @@ export default function Profile() {
                                 {
                                     name: "Активные заказы",
                                     element: <ActiveOrdersClient
-                                        orders={res.data.filter(order => new Date(order.datetime_of_walking) >= new Date() && order.walker_took_order === true)}/>
+                                        orders={res.data.filter(order => new Date(order.order.datetime_of_walking) >= new Date() && order.order.walker_took_order === true)}/>
                                 },
                                 {
                                     name: "Завершенные заказы",
                                     element: <CompletedOrdersClient
-                                        orders={res.data.filter(order => new Date(order.datetime_of_walking) < new Date() && order.walker_took_order === true)}/>
+                                        orders={res.data.filter(order => new Date(order.order.datetime_of_walking) < new Date() && order.order.walker_took_order === true)}/>
                                 },
                                 {
                                     name: "Ожидают ответа",
                                     element: <WaitingResponseOrdersClient
-                                        orders={res.data.filter(order => new Date(order.datetime_of_walking) < new Date() && (order.paid === null || order.client_confirmed_execution === null))}/>
+                                        orders={res.data.filter(order => new Date(order.order.datetime_of_walking) < new Date() && (order.paid === null || order.order.client_confirmed_execution === null))}/>
                                 }
                             ])
                         })
@@ -103,17 +103,17 @@ export default function Profile() {
                                 {
                                     name: "Активные заказы",
                                     element: <ActiveOrdersWalker
-                                        orders={res.data.filter(order => new Date(order.datetime_of_walking) >= new Date() && order.walker_took_order === true)}/>
+                                        orders={res.data.filter(order => new Date(order.order.datetime_of_walking) >= new Date() && order.order.walker_took_order === true)}/>
                                 },
                                 {
                                     name: "Завершенные заказы",
                                     element: <CompletedOrdersWalker
-                                        orders={res.data.filter(order => new Date(order.datetime_of_walking) < new Date() && order.walker_took_order === true)}/>
+                                        orders={res.data.filter(order => new Date(order.order.datetime_of_walking) < new Date() && order.order.walker_took_order === true)}/>
                                 },
                                 {
                                     name: "Ожидают ответа",
                                     element: <WaitingResponseOrdersWalker
-                                        orders={res.data.filter(order => new Date(order.datetime_of_walking) >= new Date() && order.walker_took_order === null)}/>
+                                        orders={res.data.filter(order => new Date(order.order.datetime_of_walking) >= new Date() && order.order.walker_took_order === null)}/>
                                 }
                             ])
                         })
