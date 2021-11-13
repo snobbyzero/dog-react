@@ -9,6 +9,7 @@ import SignIn from "./signin/SignIn";
 import SignUp from "./signup/SignUp";
 import Box from "@material-ui/core/Box";
 import Header from "./header/Header";
+import Profile from "./profile/Profile";
 
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
                 <Route path='/' exact component={Home}/>
                 <Route path='/signin' exact component={SignIn}/>
                 <Route path='/signup' exact component={SignUp}/>
+                <Route path='/profile' exact component={Profile}/>
             </Switch>
             </Box>
         </>

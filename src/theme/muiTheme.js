@@ -9,7 +9,7 @@ let theme = createTheme({
         secondary: {
             main: '#899d73',
             contrastText: '#ffffff'
-        }
+        },
     }
 });
 theme = responsiveFontSizes(theme);
