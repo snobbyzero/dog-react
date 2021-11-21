@@ -44,8 +44,8 @@ export default function Profile() {
     const [selectedTab, setSelectedTab] = useState(1);
     const [orders, setOrders] = useState([]);
 
-    useEffect(() => {
-        const accessToken = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjMsImlhdCI6MTYzNjgxMTYwNiwibmJmIjoxNjM2ODExNjA2LCJqdGkiOiIxYmNlMGFjMy1hOTZmLTQwYzgtYjUwOC0zOGQ1ZTA4OWEwYzMiLCJleHAiOjE2MzY4MTI1MDYsInR5cGUiOiJhY2Nlc3MiLCJmcmVzaCI6ZmFsc2V9.zP5TVk-2Jr73t38ySmvoiBd5L7z83WfDvzYi_jYlFnc'
+    useEffect(async () => {
+        const accessToken = await getAccessToken();
         axios.get("https://fast-api-walking-v1.herokuapp.com/user", {
             headers: {
                 "Authorization": `Bearer ${accessToken}`

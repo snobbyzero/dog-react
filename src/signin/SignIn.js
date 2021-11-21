@@ -14,6 +14,7 @@ import Alert from "@material-ui/lab/Alert";
 import axios from "axios";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import {useHistory} from 'react-router-dom';
+import {setAccessToken, setRefreshToken} from "../utils/auth";
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -101,8 +102,10 @@ export default function SignIn() {
             login: username,
             password: password
         }).then(res => {
+            setAccessToken(res['accessToken']);
+            setRefreshToken(res['refreshToken']);
             console.log(res);
-        })
+        }).catch(err => setError("неверный логин или пароль"))
     }
 
     return (

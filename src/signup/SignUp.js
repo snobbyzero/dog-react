@@ -108,6 +108,64 @@ export default function SignUp() {
                         margin="normal"
                         required
                         fullWidth
+                        name="username"
+                        label="username"
+                        type="Username"
+                        id="username"
+                        value={password}
+                        onChange={(e) => setUsername(e.target.value)}
+                        error={passwordError !== ""}
+                        helperText={passwordError}
+                    />
+                    <TextField
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        name="password"
+                        label="Password"
+                        type="password"
+                        id="password"
+                        autoComplete="current-password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        error={passwordError !== ""}
+                        helperText={passwordError}
+                    />
+
+                    <TextField
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        name="fullrname"
+                        label="fullname"
+                        type="Fullname"
+                        id="fullname"
+                        value={password}
+                        onChange={(e) => setFullname(e.target.value)}
+                        error={passwordError !== ""}
+                        helperText={passwordError}
+                    />
+                    <TextField
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        name="phone"
+                        label="phone"
+                        type="Phone"
+                        id="phone"
+                        value={password}
+                        onChange={(e) => setPhone(e.target.value)}
+                        error={passwordError !== ""}
+                        helperText={passwordError}
+                    />
+                    <TextField
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
                         id="email"
                         label="Email Address"
                         name="email"

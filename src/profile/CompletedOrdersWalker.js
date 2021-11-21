@@ -48,10 +48,10 @@ export default function CompletedOrdersWalker(props) {
                 <Box style={{display: 'flex', flexDirection: 'column'}}>
                     <Paper className={classes.paper}>
                         <Typography component="div" variant="h5">
-                            Имя собаки
+                            {order.dog.nickname}
                         </Typography>
                         <Typography variant="subtitle1" color="text.secondary" component="div">
-                            Возраст, вес
+                            {order.dog.date_of_birth}, {order.dog.size_in_kg}
                         </Typography>
                     </Paper>
                     <Paper className={classes.paper}>
@@ -60,31 +60,31 @@ export default function CompletedOrdersWalker(props) {
                         </Typography>
                         <Divider/>
                         <Typography component="div" variant="subtitle1">
-                            Имя клиента
+                            {order.client.fullname}
                         </Typography>
                         <Typography variant="subtitle1" color="text.secondary" component="div">
-                            Телефон
+                            {order.client.phone}
                         </Typography>
                         <Typography variant="subtitle1" color="text.secondary" component="div">
-                            Почта
+                            {order.client.email}
                         </Typography>
                     </Paper>
                 </Box>
                 <Box style={{display: "flex", flexDirection: "column", justifyContent: "space-around"}}>
                     <Paper className={classes.paper}>
                         <Typography variant="subtitle1">
-                            Время: 15:47
+                            {order.order.datetime_of_walking}
                         </Typography>
                         <Typography variant="subtitle1" style={{display: "flex", alignItems: "center"}}>
                             <Timer style={{marginLeft: "-3px", marginRight: "3px"}}/>
-                            3 часа
+                            {order.order.numbers_of_hours}
                         </Typography>
                         <div style={{display: "flex"}}>
                             <Typography variant="subtitle1" style={{marginLeft: "3px", marginRight: "10px"}}>
                                 ₽
                             </Typography>
                             <Typography variant="subtitle1">
-                                5000
+                                {order.order.price}
                             </Typography>
                         </div>
                     </Paper>
