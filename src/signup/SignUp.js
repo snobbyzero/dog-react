@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {Typography} from "@material-ui/core";
+import {FormControl, FormLabel, Radio, RadioGroup, Typography} from "@material-ui/core";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import makeStyles from "@material-ui/core/styles/makeStyles";
@@ -14,6 +14,7 @@ import axios from "axios";
 import Grid from "@material-ui/core/Grid";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import {useHistory} from "react-router-dom";
+import {setAccessToken, setRefreshToken} from "../utils/auth";
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -61,13 +62,21 @@ export default function SignUp() {
     const [passwordError, setPasswordError] = useState("");
     const [rememberMe, setRememberMe] = useState(false);
 
+    const [value, setValue] = React.useState('walker');
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         await signup();
     }
 
+    const handleChange = (event) => {
+        setValue(event.target.value);
+    };
+
+
     const signup = async () => {
-        axios.post("https://fast-api-walking-v1.herokuapp.com/walker", {
+
+        axios.post("https://fast-api-walking-v1.herokuapp.com/"+value, {
             user_info: {
                 username: username,
                 hashed_password: password,
@@ -91,6 +100,7 @@ export default function SignUp() {
             }
         })
             .then(response => {
+
                 console.log(response);
             })
     }
@@ -112,25 +122,9 @@ export default function SignUp() {
                         label="username"
                         type="Username"
                         id="username"
-                        value={password}
+                        value={username}
                         onChange={(e) => setUsername(e.target.value)}
-                        error={passwordError !== ""}
-                        helperText={passwordError}
-                    />
-                    <TextField
-                        variant="outlined"
-                        margin="normal"
-                        required
-                        fullWidth
-                        name="password"
-                        label="Password"
-                        type="password"
-                        id="password"
-                        autoComplete="current-password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        error={passwordError !== ""}
-                        helperText={passwordError}
+
                     />
 
                     <TextField
@@ -142,10 +136,9 @@ export default function SignUp() {
                         label="fullname"
                         type="Fullname"
                         id="fullname"
-                        value={password}
+                        value={fullname}
                         onChange={(e) => setFullname(e.target.value)}
-                        error={passwordError !== ""}
-                        helperText={passwordError}
+
                     />
                     <TextField
                         variant="outlined"
@@ -153,13 +146,13 @@ export default function SignUp() {
                         required
                         fullWidth
                         name="phone"
-                        label="phone"
+                        label="Phone"
                         type="Phone"
                         id="phone"
-                        value={password}
+                        value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        error={passwordError !== ""}
-                        helperText={passwordError}
+                        error={phoneError !== ""}
+                        helperText={phoneError}
                     />
                     <TextField
                         variant="outlined"
@@ -191,20 +184,21 @@ export default function SignUp() {
                         error={passwordError !== ""}
                         helperText={passwordError}
                     />
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                value={rememberMe}
-                                color="primary"
-                                onChange={() => setRememberMe(!rememberMe)}
-                            />
-                        }
-                        label={
-                            <Typography>
-                                Remember me
-                            </Typography>
-                        }
-                    />
+                    <FormControl component="fieldset">
+                        <FormLabel component="legend">Status</FormLabel>
+                        <RadioGroup
+                            aria-label="status"
+                            defaultValue="Walker"
+                            name="radio-buttons-group"
+                            value={value}
+                            onChange={handleChange}
+                        >
+                            <FormControlLabel value="walker" control={<Radio />} label="Walker" />
+                            <FormControlLabel value="client" control={<Radio />} label="Client" />
+                        </RadioGroup>
+                    </FormControl>
+
+
                     <FormControlLabel
                         control={
                             <Checkbox
@@ -217,6 +211,21 @@ export default function SignUp() {
                             <Typography>
                                 {"I confirm that I am 18 years old and accept "}
                                 <Link color="secondary" href="#">Terms of Service and Privacy Policy</Link>
+                            </Typography>
+                        }
+                    />
+
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                value={rememberMe}
+                                color="primary"
+                                onChange={() => setRememberMe(!rememberMe)}
+                            />
+                        }
+                        label={
+                            <Typography>
+                                Remember me
                             </Typography>
                         }
                     />

@@ -102,8 +102,8 @@ export default function SignIn() {
             login: username,
             password: password
         }).then(res => {
-            setAccessToken(res['accessToken']);
-            setRefreshToken(res['refreshToken']);
+            setAccessToken(res.data['accessToken']);
+            setRefreshToken(res.data['refreshToken']);
             console.log(res);
         }).catch(err => setError("неверный логин или пароль"))
     }

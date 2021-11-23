@@ -16,8 +16,10 @@ export async function getAccessToken() {
         console.log("refresh token exists")
         console.log(refreshToken)
         // TODO URL
-        await axios.post(``, {refreshToken: refreshToken}, {
-
+        await axios.post(`https://fast-api-walking-v1.herokuapp.com/user/token`, {}, {
+            headers: {
+                Authorization: `Bearer ${await getRefreshToken}`
+            }
         })
             .then((response) => {
                 const accessToken = response.data.accessToken;
@@ -25,7 +27,6 @@ export async function getAccessToken() {
                 localStorage.setItem('accessToken', accessToken);
                 localStorage.setItem('refreshToken', refreshToken);
                 console.log(accessToken);
-                console.log(refreshToken);
                 return accessToken;
             })
             .catch((err) => {
