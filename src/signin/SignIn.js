@@ -102,8 +102,9 @@ export default function SignIn() {
             login: username,
             password: password
         }).then(res => {
-            setAccessToken(res.data['accessToken']);
-            setRefreshToken(res.data['refreshToken']);
+            console.log(res.data);
+            setAccessToken(res.data['access_token']);
+            setRefreshToken(res.data['refresh_token']);
             console.log(res);
         }).catch(err => setError("неверный логин или пароль"))
     }
@@ -111,7 +112,7 @@ export default function SignIn() {
     return (
         <Container component="main" maxWidth="xs">
             <div className={classes.paper}>
-                    <img className={classes.avatar} src={"/logo_bot.png"}/>
+                <img className={classes.avatar} src={"/logo_bot.png"}/>
                 <Typography component="h1" variant="h5">
                     Sign In
                 </Typography>

@@ -24,10 +24,12 @@ const useStyles = makeStyles((theme) => ({
     },
     user: {
         display: "flex",
+        alignItems: "center"
     },
     avatar: {
         width: "300px",
-        height: "300px"
+        height: "300px",
+        marginRight: theme.spacing(2)
     },
     userInfo: {
         marginLeft: theme.spacing(2),
@@ -43,9 +45,13 @@ export default function Profile() {
     const [tabs, setTabs] = useState([]);
     const [selectedTab, setSelectedTab] = useState(1);
     const [orders, setOrders] = useState([]);
+    const [activeOrders, setActiveOrders] = useState([]);
+    const [completedOrders, setCompletedOrders] = useState([]);
+    const [waitingOrders, setWaitingOrders] = useState([]);
 
     useEffect(async () => {
         const accessToken = await getAccessToken();
+        console.log(`access token: ${accessToken}`)
         axios.get("https://fast-api-walking-v1.herokuapp.com/user", {
             headers: {
                 "Authorization": `Bearer ${accessToken}`
@@ -55,13 +61,15 @@ export default function Profile() {
                 setUserInfo(res.data);
                 console.log(res);
 
-                if (userInfo.client_id) {
+                if (res.data.client_id) {
                     axios.get("https://fast-api-walking-v1.herokuapp.com/dog", {
                         headers: {
                             "Authorization": `Bearer ${accessToken}`
                         }
                     })
                         .then(res => {
+                            console.log("dogs");
+                            console.log(res.data);
                             setDogs(res.data);
                         })
                     axios.get("https://fast-api-walking-v1.herokuapp.com/order/client", {
@@ -70,6 +78,9 @@ export default function Profile() {
                         }
                     })
                         .then(res => {
+                            console.log("orders client")
+                            console.log(res.data)
+                            setOrders(res.data)
                             setTabs([
                                 {
                                     name: "Мои собаки",
@@ -78,17 +89,17 @@ export default function Profile() {
                                 {
                                     name: "Активные заказы",
                                     element: <ActiveOrdersClient
-                                        orders={res.data.filter(order => new Date(order.order.datetime_of_walking) >= new Date() && order.order.walker_took_order === true)}/>
+                                        orders={orders.filter(order => new Date(order.datetime_of_walking) >= new Date() && order.walker_took_order === true)}/>
                                 },
                                 {
                                     name: "Завершенные заказы",
                                     element: <CompletedOrdersClient
-                                        orders={res.data.filter(order => new Date(order.order.datetime_of_walking) < new Date() && order.order.walker_took_order === true)}/>
+                                        orders={orders.filter(order => new Date(order.datetime_of_walking) < new Date() && order.walker_took_order === true)}/>
                                 },
                                 {
                                     name: "Ожидают ответа",
                                     element: <WaitingResponseOrdersClient
-                                        orders={res.data.filter(order => new Date(order.order.datetime_of_walking) < new Date() && (order.paid === null || order.order.client_confirmed_execution === null))}/>
+                                        orders={orders.filter(order => new Date(order.datetime_of_walking) < new Date() && (order.paid === null || order.client_confirmed_execution === null))}/>
                                 }
                             ])
                         })
@@ -99,21 +110,23 @@ export default function Profile() {
                         }
                     })
                         .then(res => {
+                            setOrders(res.data);
+                            console.log(res.data)
                             setTabs([
                                 {
                                     name: "Активные заказы",
                                     element: <ActiveOrdersWalker
-                                        orders={res.data.filter(order => new Date(order.order.datetime_of_walking) >= new Date() && order.order.walker_took_order === true)}/>
+                                        orders={orders.filter(order => new Date(order.order.datetime_of_walking) >= new Date() && order.order.walker_took_order === true)}/>
                                 },
                                 {
                                     name: "Завершенные заказы",
                                     element: <CompletedOrdersWalker
-                                        orders={res.data.filter(order => new Date(order.order.datetime_of_walking) < new Date() && order.order.walker_took_order === true)}/>
+                                        orders={orders.filter(order => new Date(order.order.datetime_of_walking) < new Date() && order.order.walker_took_order === true)}/>
                                 },
                                 {
                                     name: "Ожидают ответа",
                                     element: <WaitingResponseOrdersWalker
-                                        orders={res.data.filter(order => new Date(order.order.datetime_of_walking) >= new Date() && order.order.walker_took_order === null)}/>
+                                        orders={orders.filter(order => new Date(order.order.datetime_of_walking) >= new Date() && order.order.walker_took_order === null)}/>
                                 }
                             ])
                         })
@@ -141,9 +154,9 @@ export default function Profile() {
             <Box className={classes.user}>
                 <img className={classes.avatar} src="/logo_bot.png"/>
                 <Box className={classes.userInfo}>
-                    <Typography variant="h2">Fullname</Typography>
-                    <Typography variant="h4">Email</Typography>
-                    <Typography variant="h4">Phone</Typography>
+                    <Typography variant="h4">{userInfo.fullname}</Typography>
+                    <Typography variant="h6">{userInfo.email}</Typography>
+                    <Typography variant="h6">{userInfo.phone}</Typography>
 
                 </Box>
             </Box>

@@ -22,8 +22,8 @@ export async function getAccessToken() {
             }
         })
             .then((response) => {
-                const accessToken = response.data.accessToken;
-                const refreshToken = response.data.refreshToken;
+                const accessToken = response.data.access_token;
+                const refreshToken = response.data.refresh_token;
                 localStorage.setItem('accessToken', accessToken);
                 localStorage.setItem('refreshToken', refreshToken);
                 console.log(accessToken);
