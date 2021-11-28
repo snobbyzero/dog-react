@@ -105,27 +105,12 @@ export default function SignUp() {
                 })
         } else{
             axios.post("https://fast-api-walking-v1.herokuapp.com/" + value, {
-                user_info: {
-                    username: username,
-                    hashed_password: password,
-                    fullname: fullname,
-                    phone: phone,
-                    email: email,
-                    avatar_url: avatarUrl
-                },
-                client_info: {
-                    rating: 0,
-                    counter: 0,
-                    region_code: 56,
-                    price_per_hour: 500,
-                    practice_in_year: 0,
-                    min_dog_size_in_kg: 10,
-                    max_dog_size_in_kg: 20,
-                    min_dog_age_in_years: 1,
-                    max_dog_age_in_years: 20,
-                    schedule: "Я могу гулять по понедельникам с 9:00 до 18:00",
-                    about_walker: "Я Иван Чернышев, дотер"
-                }
+                username: username,
+                hashed_password: password,
+                fullname: fullname,
+                phone: phone,
+                email: email,
+                avatar_url: avatarUrl
             })
                 .then(response => {
 
