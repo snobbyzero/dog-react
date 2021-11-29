@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import axios from "axios";
 import {getAccessToken} from "../utils/auth";
 import {AppBar, makeStyles, Typography} from "@material-ui/core";
@@ -12,6 +12,8 @@ import ActiveOrdersClient from "./ActiveOrdersClient";
 import CompletedOrdersClient from "./CompletedOrdersClient";
 import WaitingResponseOrdersClient from "./WaitingResponseOrdersClient";
 import WaitingResponseOrdersWalker from "./WaitingResponseOrdersWalker";
+import Button from "@material-ui/core/Button";
+import {useHistory} from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -48,6 +50,7 @@ export default function Profile() {
     const [activeOrders, setActiveOrders] = useState([]);
     const [completedOrders, setCompletedOrders] = useState([]);
     const [waitingOrders, setWaitingOrders] = useState([]);
+    const history = useHistory();
 
     useEffect(async () => {
         const accessToken = await getAccessToken();
@@ -157,7 +160,17 @@ export default function Profile() {
                     <Typography variant="h4">{userInfo.fullname}</Typography>
                     <Typography variant="h6">{userInfo.email}</Typography>
                     <Typography variant="h6">{userInfo.phone}</Typography>
-
+                    <Button
+                        type="submit"
+                        fullWidth
+                        size="large"
+                        variant="contained"
+                        color="primary"
+                        className={classes.submit}
+                        onClick={history.push("/edit")}
+                    >
+                        Редактировать информацию
+                    </Button>
                 </Box>
             </Box>
             <Box>
