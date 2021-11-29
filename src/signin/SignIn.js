@@ -51,11 +51,10 @@ export default function SignIn() {
     const history = useHistory();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-    const [username, setUsername] = useState("");
-    const [usernameError, setUsernameError] = useState("");
+    const [email, setEmail] = useState("");
+    const [emailError, setEmailError] = useState("");
     const [password, setPassword] = useState("");
     const [passwordError, setPasswordError] = useState("");
-    const [rememberMe, setRememberMe] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -67,46 +66,18 @@ export default function SignIn() {
 
 
     const buttonClick = async () => {
-        /*
-        axios.post("https://fast-api-walking-v1.herokuapp.com/walker", {
-            user_info: {
-                username: "ivan",
-                hashed_password: "qwerty",
-                fullname: "ivan chernyshev ivanovich",
-                phone: "89004444333",
-                email: "test@gmail.com",
-                avatar_url: "https://cs.pikabu.ru/post_img/big/2013/12/31/9/1388645055_1336973337.jpg"
-            },
-            walker_info: {
-                rating: 0,
-                counter: 0,
-                region_code: 56,
-                price_per_hour: 500,
-                practice_in_year: 0,
-                min_dog_size_in_kg: 10,
-                max_dog_size_in_kg: 20,
-                min_dog_age_in_years: 1,
-                max_dog_age_in_years: 20,
-                schedule: "Я могу гулять по понедельникам с 9:00 до 18:00",
-                about_walker: "Я Иван Чернышев, дотер"
-            }
-        })
-            .then(response => {
-                console.log(response);
-            })
-
-         */
-        console.log(username);
+        console.log(email);
         console.log(password);
         axios.post("https://fast-api-walking-v1.herokuapp.com/user/auth", {
-            login: username,
+            email: email,
             password: password
         }).then(res => {
+            // TODO токен будет по-другому
             console.log(res.data);
             setAccessToken(res.data['access_token']);
             setRefreshToken(res.data['refresh_token']);
             console.log(res);
-        }).catch(err => setError("неверный логин или пароль"))
+        }).catch(err => setError("Неверный логин или пароль"))
     }
 
     return (
@@ -122,13 +93,14 @@ export default function SignIn() {
                         margin="normal"
                         required
                         fullWidth
-                        id="username"
-                        label="Username"
+                        id="email"
+                        type="email"
+                        label="Email"
                         autoFocus
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        error={usernameError !== ""}
-                        helperText={usernameError}
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        error={emailError !== ""}
+                        helperText={emailError}
                     />
                     <TextField
                         variant="outlined"
@@ -144,20 +116,6 @@ export default function SignIn() {
                         onChange={(e) => setPassword(e.target.value)}
                         error={passwordError !== ""}
                         helperText={passwordError}
-                    />
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                value={rememberMe}
-                                color="primary"
-                                onChange={() => setRememberMe(!rememberMe)}
-                            />
-                        }
-                        label={
-                            <Typography>
-                                Remember me
-                            </Typography>
-                        }
                     />
                     <Button
                         type="submit"

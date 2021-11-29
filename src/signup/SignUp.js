@@ -1,10 +1,10 @@
-import React, {useState} from "react";
+import React, {useRef, useState} from "react";
 import {FormControl, FormLabel, Radio, RadioGroup, Typography} from "@material-ui/core";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import Avatar from "@material-ui/core/Avatar";
-import {Memory} from "@material-ui/icons";
+import {AddAPhoto, Adjust, Memory} from "@material-ui/icons";
 import Link from "@material-ui/core/Link";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
@@ -15,6 +15,8 @@ import Grid from "@material-ui/core/Grid";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import {useHistory} from "react-router-dom";
 import {setAccessToken, setRefreshToken} from "../utils/auth";
+import WalkerInfo from "./WalkerInfo";
+import Box from "@material-ui/core/Box";
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -23,14 +25,18 @@ const useStyles = makeStyles((theme) => ({
         flexDirection: 'column',
         alignItems: 'center',
     },
-    avatar: {
+    logo: {
         margin: theme.spacing(1),
-        width: "250px",
-        height: "250px"
+        width: "100px",
+        height: "100px"
     },
     form: {
         width: '100%', // Fix IE 11 issue.
         marginTop: theme.spacing(1),
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: 'center',
+        alignItems: "center"
     },
     submit: {
         textTransform: "none",
@@ -39,51 +45,77 @@ const useStyles = makeStyles((theme) => ({
     alert: {
         width: "100%",
         margin: theme.spacing(2, 0, 1)
+    },
+    avatar: {
+        width: "150px",
+        height: "150px",
+        borderRadius: "50%",
+        cursor: "pointer"
+    },
+    add_photo_box: {
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        width: "130px",
+        height: "130px",
+        borderRadius: "50%",
+        cursor: "pointer",
+        border: "solid 5px",
+        borderColor: theme.palette.primary.main
+    },
+    add_photo: {
+        width: "65px",
+        height: "65px",
+        color: theme.palette.primary.main
     }
 }));
 
 export default function SignUp() {
     const classes = useStyles();
-
+    const walkerInfo = useRef();
     const history = useHistory();
     const [loading, setLoading] = useState(false);
     const [acceptTerms, setAcceptTerms] = useState(false);
     const [error, setError] = useState("");
     const [email, setEmail] = useState("");
     const [emailError, setEmailError] = useState("");
-    const [username, setUsername] = useState("");
-    const [usernameError, setUsernameError] = useState("");
     const [fullname, setFullname] = useState("");
-    const [fullnameError, setFullnameError] = useState("");
     const [phone, setPhone] = useState("");
     const [phoneError, setPhoneError] = useState("");
-    const [avatarUrl, setAvatarUrl] = useState("")
+    const [avatar, setAvatar] = useState("")
+    const [avatarPicked, setAvatarPicked] = useState(false)
     const [password, setPassword] = useState("");
     const [passwordError, setPasswordError] = useState("");
-    const [rememberMe, setRememberMe] = useState(false);
+    const hiddenAvatarInput = useRef();
 
-    const [value, setValue] = React.useState('walker');
+    const [userType, setUserType] = React.useState('walker');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         await signup();
     }
 
-    const handleChange = (event) => {
-        setValue(event.target.value);
+    const handleUserType = (event) => {
+        setUserType(event.target.value);
     };
+
+    const handleAvatarChange = (event) => {
+        if (event.target.files[0] != null) {
+            setAvatar(event.target.files[0]);
+            setAvatarPicked(true);
+        }
+    }
 
 
     const signup = async () => {
-        if(value === 'walker') {
-            axios.post("https://fast-api-walking-v1.herokuapp.com/" + value, {
+        if (userType === 'walker') {
+            axios.post("https://fast-api-walking-v1.herokuapp.com/" + userType, {
                 user_info: {
-                    username: username,
                     hashed_password: password,
                     fullname: fullname,
                     phone: phone,
                     email: email,
-                    avatar_url: avatarUrl
+                    avatar_url: avatar
                 },
                 walker_info: {
                     rating: 0,
@@ -100,20 +132,19 @@ export default function SignUp() {
                 }
             })
                 .then(response => {
-
+                    history.push("/signin")
                     console.log(response);
                 })
-        } else{
-            axios.post("https://fast-api-walking-v1.herokuapp.com/" + value, {
-                username: username,
+        } else {
+            axios.post("https://fast-api-walking-v1.herokuapp.com/" + userType, {
                 hashed_password: password,
                 fullname: fullname,
                 phone: phone,
                 email: email,
-                avatar_url: avatarUrl
+                avatar_url: avatar
             })
                 .then(response => {
-
+                    history.push("/signin")
                     console.log(response);
                 })
         }
@@ -122,32 +153,35 @@ export default function SignUp() {
     return (
         <Container component="main" maxWidth="xs">
             <div className={classes.paper}>
-                <img className={classes.avatar} src={"/logo_bot.png"}/>
+                <img className={classes.logo} src={"/logo_bot.png"}/>
                 <Typography component="h1" variant="h5">
                     Sign Up
                 </Typography>
                 <form className={classes.form} onSubmit={handleSubmit} noValidate>
-                    <TextField
-                        variant="outlined"
-                        margin="normal"
-                        required
-                        fullWidth
-                        name="username"
-                        label="username"
-                        type="Username"
-                        id="username"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
 
+                    { avatarPicked ?
+                        <img className={classes.avatar} alt="avatar" onClick={() => hiddenAvatarInput.current.click()}
+                             src={avatarPicked && avatar && URL.createObjectURL(avatar)}/>
+                             :
+                        <Box className={classes.add_photo_box}>
+                            <AddAPhoto className={classes.add_photo}/>
+                        </Box>
+                            }
+                    <input
+                        accept="image/*"
+                        type="file"
+                        id="main_image"
+                        hidden
+                        ref={hiddenAvatarInput}
+                        onChange={handleAvatarChange}
                     />
-
                     <TextField
                         variant="outlined"
                         margin="normal"
                         required
                         fullWidth
-                        name="fullrname"
-                        label="fullname"
+                        name="fullname"
+                        label="Fullname"
                         type="Fullname"
                         id="fullname"
                         value={fullname}
@@ -198,20 +232,29 @@ export default function SignUp() {
                         error={passwordError !== ""}
                         helperText={passwordError}
                     />
-                    <FormControl component="fieldset">
-                        <FormLabel component="legend">Status</FormLabel>
-                        <RadioGroup
-                            aria-label="status"
-                            defaultValue="Walker"
-                            name="radio-buttons-group"
-                            value={value}
-                            onChange={handleChange}
-                        >
-                            <FormControlLabel value="walker" control={<Radio />} label="Walker" />
-                            <FormControlLabel value="client" control={<Radio />} label="Client" />
-                        </RadioGroup>
-                    </FormControl>
-
+                    <Box style={{display: "flex", width: "100%"}}>
+                        <FormControl component="fieldset">
+                            <FormLabel component="legend">Status</FormLabel>
+                            <RadioGroup
+                                aria-label="status"
+                                defaultValue="Walker"
+                                name="radio-buttons-group"
+                                value={userType}
+                                onChange={handleUserType}
+                                row
+                            >
+                                <FormControlLabel value="walker" control={<Radio/>} label="Walker"/>
+                                <FormControlLabel value="client" control={<Radio/>} label="Client"/>
+                            </RadioGroup>
+                        </FormControl>
+                    </Box>
+                    {
+                        (userType === 'walker') ?
+                            <WalkerInfo ref={walkerInfo}/>
+                            :
+                            <>
+                            </>
+                    }
 
                     <FormControlLabel
                         control={
@@ -228,21 +271,6 @@ export default function SignUp() {
                             </Typography>
                         }
                     />
-
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                value={rememberMe}
-                                color="primary"
-                                onChange={() => setRememberMe(!rememberMe)}
-                            />
-                        }
-                        label={
-                            <Typography>
-                                Remember me
-                            </Typography>
-                        }
-                    />
                     <Button
                         type="submit"
                         fullWidth
@@ -256,7 +284,7 @@ export default function SignUp() {
                     </Button>
                 </form>
                 <Grid container>
-                    <Grid item>
+                    <Grid item style={{marginBottom: "10px"}}>
                         <Link href="/signin" variant="body2" color="secondary">
                             Already have an account? Sign In
                         </Link>
