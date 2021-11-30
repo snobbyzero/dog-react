@@ -15,8 +15,11 @@ import Grid from "@material-ui/core/Grid";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import {useHistory} from "react-router-dom";
 import {setAccessToken, setRefreshToken} from "../utils/auth";
-import WalkerInfo from "../signup/WalkerInfo";
+
 import Box from "@material-ui/core/Box";
+import Autocomplete from "@material-ui/lab/Autocomplete";
+import Chip from "@material-ui/core/Chip";
+import Slider from "@material-ui/core/Slider";
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -72,7 +75,6 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Edit() {
     const classes = useStyles();
-    const walkerInfo = useRef();
     const history = useHistory();
     const [loading, setLoading] = useState(false);
     const [acceptTerms, setAcceptTerms] = useState(false);
@@ -232,45 +234,13 @@ export default function Edit() {
                         error={passwordError !== ""}
                         helperText={passwordError}
                     />
-                    <Box style={{display: "flex", width: "100%"}}>
-                        <FormControl component="fieldset">
-                            <FormLabel component="legend">Status</FormLabel>
-                            <RadioGroup
-                                aria-label="status"
-                                defaultValue="Walker"
-                                name="radio-buttons-group"
-                                value={userType}
-                                onChange={handleUserType}
-                                row
-                            >
-                                <FormControlLabel value="walker" control={<Radio/>} label="Walker"/>
-                                <FormControlLabel value="client" control={<Radio/>} label="Client"/>
-                            </RadioGroup>
-                        </FormControl>
-                    </Box>
                     {
                         (userType === 'walker') ?
-                            <WalkerInfo ref={walkerInfo}/>
+                            <WalkerInfo ref={WalkerInfo}/>
                             :
                             <>
                             </>
                     }
-
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                value={acceptTerms}
-                                onChange={() => setAcceptTerms(!acceptTerms)}
-                                color="primary"
-                            />
-                        }
-                        label={
-                            <Typography>
-                                {"I confirm that I am 18 years old and accept "}
-                                <Link color="secondary" href="#">Terms of Service and Privacy Policy</Link>
-                            </Typography>
-                        }
-                    />
                     <Button
                         type="submit"
                         fullWidth
@@ -292,4 +262,163 @@ export default function Edit() {
             </div>
         </Container>
     );
+}
+
+function WalkerInfo() {
+    const classes = useStyles()
+
+    const [stations, setStations] = useState([]);
+    const [selectedStations, setSelectedStations] = useState([]);
+    const [price, setPrice] = useState(10);
+    const [practiceInYear, setPracticeInYear] = useState(0);
+    const [minSizeDog, setMinSizeDog] = useState(0);
+    const [maxSizeDog, setMaxSizeDog] = useState(1);
+    const [minAgeDog, setMinAgeDog] = useState(0);
+    const [maxAgeDog, setMaxAgeDog] = useState(1);
+    const [schedule, setSchedule] = useState("");
+    const [aboutWalker, setAboutWalker] = useState("");
+
+    const getStations = (value, station) => {
+        console.log(`station: ${station}`)
+        axios.post(
+            "https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/metro",
+            {
+                city: "Москва",
+                query: value
+            },
+            {
+                headers: {
+                    "Authorization": "Token decae9911b8941c8e21ebd533d365620829cf431"
+                }
+            }).then(res => {
+            const stations = res.data.suggestions.filter(station => selectedStations.map(st => st.data.name).indexOf(station.data.name) === -1);
+            setStations(stations);
+        })
+    }
+
+    return (
+        <Box>
+            <Typography style={{marginBottom: "20px"}}>Введите станции метро, где вы можете работать. Если неважно, оставьте полем пустым.</Typography>
+            <Autocomplete
+                multiple
+                className={classes.stations}
+                options={stations}
+                getOptionLabel={option => option.data.name}
+                onChange={(e, newValue) => {
+                    setSelectedStations(newValue)
+                }}
+                renderOption={option => {
+                    return (
+                        <>
+                            <Adjust style={{color: option.data.color}}/>
+                            <Typography>{option.data.name}</Typography>
+                        </>
+                    )
+                }}
+                renderInput={(params) => (
+                    <TextField
+                        {...params}
+                        variant="outlined"
+                        label="Станции"
+                        placeholder="Введите станции"
+                        onChange={(event, value) => getStations(event.target.value, value)}
+                    />
+                )}
+                renderTags={(tagValue, getTagProps) =>
+                    tagValue.map((option, index) => (
+                        <Chip
+                            avatar={<Adjust style={{color: `#${option.data.color}`}}/>}
+                            label={option.data.name}
+                            {...getTagProps({index})}
+                            className={classes.station}
+                        />
+                    ))}
+            />
+            <Typography>Оплата (руб/час)</Typography>
+            <Slider
+                defaultValue={50}
+                step={25}
+                min={50}
+                max={1500}
+                value={price}
+                valueLabelDisplay="on"
+                onChange={(e, newValue) => setPrice(parseInt(newValue))}
+            />
+            <TextField
+                variant="outlined"
+                margin="normal"
+                required
+                fullWidth
+                label="Опыт работы (в годах)"
+                value={practiceInYear}
+                onChange={(e) => setPracticeInYear(e.target.value)}
+            />
+            <Box style={{display: "flex", marginBottom: "10px"}}>
+                <TextField
+                    variant="outlined"
+                    margin="normal"
+                    required
+                    fullWidth
+                    style={{marginRight: "10px"}}
+                    label="Мин. возраст собаки"
+                    value={minAgeDog}
+                    onChange={(e) => setMinAgeDog(e.target.value)}
+                />
+                <TextField
+                    variant="outlined"
+                    margin="normal"
+                    required
+                    fullWidth
+                    style={{marginLeft: "10px"}}
+                    label="Макс. возраст собаки"
+                    value={maxAgeDog}
+                    onChange={(e) => setMaxAgeDog(e.target.value)}
+                />
+            </Box>
+            <Box style={{display: "flex", marginBottom: "10px"}}>
+                <TextField
+                    variant="outlined"
+                    margin="normal"
+                    style={{marginRight: "10px"}}
+                    required
+                    fullWidth
+                    label="Мин. вес собаки"
+                    value={minSizeDog}
+                    onChange={(e) => setMinSizeDog(e.target.value)}
+                />
+                <TextField
+                    variant="outlined"
+                    margin="normal"
+                    required
+                    fullWidth
+                    label="Макс. вес собаки"
+                    style={{marginLeft: "10px"}}
+                    value={maxSizeDog}
+                    onChange={(e) => setMaxSizeDog(e.target.value)}
+                />
+            </Box>
+            <TextField
+                variant="outlined"
+                margin="normal"
+                required
+                fullWidth
+                rows={10}
+                multiline
+                label="Опишите свое расписание"
+                value={schedule}
+                onChange={(e) => setSchedule(e.target.value)}
+            />
+            <TextField
+                variant="outlined"
+                margin="normal"
+                required
+                fullWidth
+                rows={10}
+                multiline
+                label="Расскажите о себе"
+                value={aboutWalker}
+                onChange={(e) => setAboutWalker(e.target.value)}
+            />
+        </Box>
+    )
 }
