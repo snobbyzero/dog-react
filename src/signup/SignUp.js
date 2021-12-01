@@ -4,7 +4,7 @@ import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import Avatar from "@material-ui/core/Avatar";
-import {AddAPhoto, Adjust, Memory} from "@material-ui/icons";
+import {AddAPhoto, Adjust, Memory, Photo} from "@material-ui/icons";
 import Link from "@material-ui/core/Link";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
@@ -47,8 +47,8 @@ const useStyles = makeStyles((theme) => ({
         margin: theme.spacing(2, 0, 1)
     },
     avatar: {
-        width: "150px",
-        height: "150px",
+        width: "130px",
+        height: "130px",
         borderRadius: "50%",
         cursor: "pointer"
     },
@@ -132,7 +132,7 @@ export default function SignUp() {
                 }
             })
                 .then(response => {
-                    history.push("/signin")
+                    history.push("/")
                     console.log(response);
                 })
         } else {
@@ -144,7 +144,7 @@ export default function SignUp() {
                 avatar_url: avatar
             })
                 .then(response => {
-                    history.push("/signin")
+                    history.push("/add-dog")
                     console.log(response);
                 })
         }
@@ -163,8 +163,8 @@ export default function SignUp() {
                         <img className={classes.avatar} alt="avatar" onClick={() => hiddenAvatarInput.current.click()}
                              src={avatarPicked && avatar && URL.createObjectURL(avatar)}/>
                              :
-                        <Box className={classes.add_photo_box}>
-                            <AddAPhoto className={classes.add_photo}/>
+                        <Box className={classes.add_photo_box} onClick={() => hiddenAvatarInput.current.click()}>
+                            <Photo className={classes.add_photo}/>
                         </Box>
                             }
                     <input

@@ -11,6 +11,7 @@ import Box from "@material-ui/core/Box";
 import Header from "./header/Header";
 import Profile from "./profile/Profile";
 import Edit from "./profile/Edit";
+import AddDog from "./signup/AddDog";
 
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
                 <Route path='/signup' exact component={SignUp}/>
                 <Route path='/profile' exact component={Profile}/>
                 <Route path='/edit' exact component={Edit}/>
+                <Route path='/add-dog' exact component={AddDog}/>
             </Switch>
             </Box>
         </>
