@@ -167,7 +167,7 @@ export default function Profile() {
                         variant="contained"
                         color="primary"
                         className={classes.submit}
-                        onClick={history.push("/edit")}
+                        onClick={() => history.push("/edit")}
                     >
                         Редактировать информацию
                     </Button>
