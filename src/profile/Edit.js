@@ -20,6 +20,7 @@ import Box from "@material-ui/core/Box";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import Chip from "@material-ui/core/Chip";
 import Slider from "@material-ui/core/Slider";
+import WalkerInfo from "../signup/WalkerInfo";
 
 const useStyles = makeStyles((theme) => ({
     paper: {
