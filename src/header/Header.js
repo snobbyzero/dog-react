@@ -26,7 +26,9 @@ const useStyles = makeStyles((theme) => ({
     appbar: {
         backgroundImage: "url(/header.png)",
     },
-    signin: {},
+    signin: {
+        background: "white",
+    },
     logo_box: {
         flexGrow: 1,
     },
@@ -59,13 +61,13 @@ export default function Header() {
                     </Box>
                     { isSignedIn ?
                         <Button className={classes.username}>
-                            <Typography variant="h5" color="secondary">
+                            <Typography style={{fontWeight: "bold"}} variant="h5" color="primary">
                                 Username
                             </Typography>
                         </Button>
                             :
-                        <Button className={classes.signin}>
-                            <Typography variant="h5" color="secondary">
+                        <Button variant="contained" className={classes.signin}>
+                            <Typography style={{fontWeight: "bold"}} variant="h5" color="primary">
                                 Sign In
                             </Typography>
                         </Button>

@@ -32,7 +32,7 @@ function App() {
                 <Route path='/profile' exact component={Profile}/>
                 <Route path='/edit' exact component={Edit}/>
                 <Route path='/add-dog' exact component={AddDog}/>
-                <Route path= '/walkerprofile' exac component={WalkerProfile}/>
+                <Route path='/walkerprofile' exact component={WalkerProfile}/>
             </Switch>
             </Box>
         </>
