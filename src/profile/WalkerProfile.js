@@ -100,23 +100,17 @@ export default function WalkerProfile() {
                     </Typography>
                 <Box>
                     <Typography variant = "h4" > Отзывы </Typography>
+                    reviews.map(review => (
+                    <Paper style={{display: "flex"}}>
+                        <Box>
+                            <img src=""/>
+                            <Typography>Иванов Иван</Typography>
+                        </Box>
+                        <Typography>Отзыв</Typography>
+                    </Paper>
+                    )
                 </Box>
             </Box>
-        </Box>)
+        </Box>);
 
-        return(<Box>{
-                reviews.map(review => (
-                        <Paper style={{display: "flex"}}>
-                            <Box>
-                                <img src=""/>
-                                <Typography>Иванов Иван</Typography>
-                            </Box>
-                            <Typography>Отзыв</Typography>
-                        </Paper>
-                    )
-                )
-
-            } </Box>
-
-);
 }
