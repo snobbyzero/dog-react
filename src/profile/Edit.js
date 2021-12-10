@@ -14,14 +14,14 @@ import axios from "axios";
 import Grid from "@material-ui/core/Grid";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import {useHistory} from "react-router-dom";
-import {setAccessToken, setRefreshToken} from "../utils/auth";
+import {getAccessToken, setAccessToken, setRefreshToken} from "../utils/auth";
 
 import Box from "@material-ui/core/Box";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import Chip from "@material-ui/core/Chip";
 import Slider from "@material-ui/core/Slider";
 import WalkerInfo from "../signup/WalkerInfo";
-
+// TODO переделать как в сайнапе
 const useStyles = makeStyles((theme) => ({
     paper: {
         marginTop: theme.spacing(8),
@@ -83,12 +83,22 @@ export default function Edit() {
     const [email, setEmail] = useState("");
     const [emailError, setEmailError] = useState("");
     const [fullname, setFullname] = useState("");
+    const [fullnameError, setFullnameError] = useState("");
     const [phone, setPhone] = useState("");
     const [phoneError, setPhoneError] = useState("");
     const [avatar, setAvatar] = useState("")
     const [avatarPicked, setAvatarPicked] = useState(false)
     const [password, setPassword] = useState("");
     const [passwordError, setPasswordError] = useState("");
+    const [selectedStations, setSelectedStations] = useState([]);
+    const [price, setPrice] = useState(10);
+    const [practiceInYear, setPracticeInYear] = useState(0);
+    const [minSizeDog, setMinSizeDog] = useState(0);
+    const [maxSizeDog, setMaxSizeDog] = useState(1);
+    const [minAgeDog, setMinAgeDog] = useState(0);
+    const [maxAgeDog, setMaxAgeDog] = useState(1);
+    const [schedule, setSchedule] = useState("");
+    const [aboutWalker, setAboutWalker] = useState("");
     const hiddenAvatarInput = useRef();
 
     const [userType, setUserType] = React.useState('walker');
@@ -111,45 +121,118 @@ export default function Edit() {
 
 
     const edit = async () => {
-        if (userType === 'walker') {
-            axios.post("https://fast-api-walking-v1.herokuapp.com/" + userType, {
-                user_info: {
-                    hashed_password: password,
-                    fullname: fullname,
-                    phone: phone,
-                    email: email,
-                    avatar_url: avatar
-                },
-                walker_info: {
-                    rating: 0,
-                    counter: 0,
-                    region_code: 56,
-                    price_per_hour: 500,
-                    practice_in_year: 0,
-                    min_dog_size_in_kg: 10,
-                    max_dog_size_in_kg: 20,
-                    min_dog_age_in_years: 1,
-                    max_dog_age_in_years: 20,
-                    schedule: "Я могу гулять по понедельникам с 9:00 до 18:00",
-                    about_walker: "Я Иван Чернышев, дотер"
-                }
-            })
-                .then(response => {
-                    history.push("/signin")
-                    console.log(response);
-                })
+        if (email === "") {
+            setEmailError("Введите почту")
+        } else if (password === "") {
+            setPasswordError("Введите пароль")
+        } else if (fullname === "") {
+            setFullnameError("Введите фамилию и имя")
+        } else if (phone === "") {
+            setPhoneError("Введите номер телефона")
         } else {
-            axios.post("https://fast-api-walking-v1.herokuapp.com/" + userType, {
-                hashed_password: password,
-                fullname: fullname,
-                phone: phone,
-                email: email,
-                avatar_url: avatar
-            })
-                .then(response => {
-                    history.push("/signin")
-                    console.log(response);
+            setLoading(true)
+            setEmailError("")
+            setPhoneError("")
+            setPasswordError("")
+            setFullnameError("")
+            setError("")
+            if (userType === 'walker') {
+                console.log(email)
+                console.log(password)
+                console.log(fullname)
+                console.log(phone)
+                axios.patch("https://fast-api-walking-v1.herokuapp.com/user/", {
+                    email: email,
+                    password: password,
+                    name: fullname,
+                    phone_number: phone,
+                }, {
+                    headers: {
+                        "Authorization": `Bearer ${await getAccessToken()}`
+                    }
                 })
+                    .then(async res => {
+                        console.log(res.data)
+                        await setAccessToken(res.data['Token']['access_token']);
+                        await setRefreshToken(res.data['Token']['refresh_token']);
+                        console.log(await getAccessToken())
+                        if (avatar) {
+                            const formData = new FormData();
+                            formData.append('image', avatar);
+                            axios.post("https://fast-api-walking-v1.herokuapp.com/user/avatar", formData, {
+                                headers: {
+                                    "Authorization": `Bearer ${await getAccessToken()}`
+                                }
+                            })
+                                .then(response => {
+                                    console.log("USER AVATAR: ")
+                                    console.log(response)
+                                })
+                        }
+                        console.log(selectedStations)
+                        console.log(minSizeDog)
+                        console.log(maxSizeDog)
+                        console.log(minAgeDog)
+                        console.log(maxAgeDog)
+
+                        await axios.post("https://fast-api-walking-v1.herokuapp.com/walker/", {
+                            "price_per_hour": price,
+                            "stations": selectedStations,
+                            "min_dog_size_in_kg": minSizeDog,
+                            "max_dog_size_in_kg": maxSizeDog,
+                            "min_dog_age_in_years": minAgeDog,
+                            "max_dog_age_in_years": maxAgeDog,
+                            "schedule": schedule,
+                            "about_walker": aboutWalker
+                        }, {
+                            headers: {
+                                "Authorization": `Bearer ${await getAccessToken()}`
+                            }
+                        })
+                        setLoading(false)
+                        history.push("/myprofile")
+                        console.log(res);
+                    })
+                    .catch(err => {
+                        setLoading(false)
+                        console.log(err);
+                        if (err.response) {
+                            //console.log(err.response.data.detail)
+                            setError(err.response.data.detail)
+                        }
+                    })
+            } else {
+                axios.patch("https://fast-api-walking-v1.herokuapp.com/user", {
+                    password: password,
+                    name: fullname,
+                    phone_number: phone,
+                    email: email,
+                }, {
+                    headers: {
+                        "Authorization": `Bearer ${await getAccessToken()}`
+                    }
+                })
+                    .then(async res => {
+                        await setAccessToken(res.data['access_token']);
+                        await setRefreshToken(res.data['refresh_token']);
+                        if (avatar) {
+                            const formData = new FormData();
+                            formData.append('image', avatar);
+                            axios.post("https://fast-api-walking-v1.herokuapp.com/user/avatar", formData)
+                                .then(response => {
+                                    console.log("USER AVATAR: ")
+                                    console.log(response)
+                                })
+                        }
+                        setLoading(false)
+                        history.push("/myprofile")
+                        console.log(res);
+                    })
+                    .catch(error => {
+                        setLoading(false)
+                        setError(error)
+                    })
+            }
         }
     }
 
@@ -188,6 +271,8 @@ export default function Edit() {
                         type="Fullname"
                         id="fullname"
                         value={fullname}
+                        error={fullnameError !== ""}
+                        helperText={fullnameError}
                         onChange={(e) => setFullname(e.target.value)}
 
                     />
@@ -237,7 +322,26 @@ export default function Edit() {
                     />
                     {
                         (userType === 'walker') ?
-                            <WalkerInfo ref={WalkerInfo}/>
+                            <WalkerInfo
+                                selectedStations={selectedStations}
+                                setSelectedStations={setSelectedStations}
+                                price={price}
+                                setPrice={setPrice}
+                                practiceInYear={practiceInYear}
+                                setPracticeInYear={setPracticeInYear}
+                                minSizeDog={minSizeDog}
+                                setMinSizeDog={setMinSizeDog}
+                                maxSizeDog={maxSizeDog}
+                                setMaxSizeDog={setMaxSizeDog}
+                                minAgeDog={minAgeDog}
+                                setMinAgeDog={setMinAgeDog}
+                                maxAgeDog={maxAgeDog}
+                                setMaxAgeDog={setMaxAgeDog}
+                                schedule={schedule}
+                                setSchedule={setSchedule}
+                                aboutWalker={aboutWalker}
+                                setAboutWalker={setAboutWalker}
+                            />
                             :
                             <>
                             </>

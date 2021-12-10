@@ -68,16 +68,29 @@ export default function SignIn() {
     const buttonClick = async () => {
         console.log(email);
         console.log(password);
-        axios.post("https://fast-api-walking-v1.herokuapp.com/user/auth", {
-            email: email,
-            password: password
-        }).then(res => {
-            // TODO токен будет по-другому
-            console.log(res.data);
-            setAccessToken(res.data['access_token']);
-            setRefreshToken(res.data['refresh_token']);
-            console.log(res);
-        }).catch(err => setError("Неверный логин или пароль"))
+        if (email === "") {
+            setEmailError("Введите почту");
+        } else if (password === "") {
+            setPasswordError("Введите пароль");
+        } else {
+            setEmailError("")
+            setPasswordError("")
+            setError("")
+            setLoading(true)
+            axios.post("https://fast-api-walking-v1.herokuapp.com/user/auth", {
+                email: email,
+                password: password
+            }).then(res => {
+                console.log(res.data);
+                setAccessToken(res.data['access_token']);
+                setRefreshToken(res.data['refresh_token']);
+                console.log(res);
+                setLoading(false);
+            }).catch(err => {
+                setError(err)
+                setLoading(false)
+            })
+        }
     }
 
     return (
@@ -95,7 +108,7 @@ export default function SignIn() {
                         fullWidth
                         id="email"
                         type="email"
-                        label="Email"
+                        label="Почта"
                         autoFocus
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
@@ -108,7 +121,7 @@ export default function SignIn() {
                         required
                         fullWidth
                         name="password"
-                        label="Password"
+                        label="Пароль"
                         type="password"
                         id="password"
                         autoComplete="current-password"
@@ -126,17 +139,17 @@ export default function SignIn() {
                         className={classes.submit}
                         onClick={buttonClick}
                     >
-                        {loading ? <CircularProgress size={24} color="inherit"/> : "Sign In"}
+                        {loading ? <CircularProgress size={24} color="inherit"/> : "Войти"}
                     </Button>
                     <Grid container>
                         <Grid item xs>
                             <Link href="#" variant="body2" color="secondary">
-                                Forgot password?
+                                Забыли пароль?
                             </Link>
                         </Grid>
                         <Grid item>
                             <Link href="/signup" variant="body2" color="secondary">
-                                Don't have an account? Sign Up
+                                Нет аккаунта? Зарегистрируйтесь
                             </Link>
                         </Grid>
                     </Grid>

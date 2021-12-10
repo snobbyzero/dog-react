@@ -55,7 +55,7 @@ export default function Profile() {
     useEffect(async () => {
         const accessToken = await getAccessToken();
         console.log(`access token: ${accessToken}`)
-        axios.get("https://fast-api-walking-v1.herokuapp.com/user", {
+        axios.get("https://fast-api-walking-v1.herokuapp.com/user/curr", {
             headers: {
                 "Authorization": `Bearer ${accessToken}`
             }
@@ -75,7 +75,7 @@ export default function Profile() {
                             console.log(res.data);
                             setDogs(res.data);
                         })
-                    axios.get("https://fast-api-walking-v1.herokuapp.com/order/client", {
+                    axios.get("https://fast-api-walking-v1.herokuapp.com/order/client_all", {
                         headers: {
                             "Authorization": `Bearer ${accessToken}`
                         }
@@ -107,7 +107,7 @@ export default function Profile() {
                             ])
                         })
                 } else {
-                    axios.get("https://fast-api-walking-v1.herokuapp.com/order/walker", {
+                    axios.get("https://fast-api-walking-v1.herokuapp.com/order/walker_all", {
                         headers: {
                             "Authorization": `Bearer ${accessToken}`
                         }
@@ -116,6 +116,10 @@ export default function Profile() {
                             setOrders(res.data);
                             console.log(res.data)
                             setTabs([
+                                {
+                                    name: "Мои собаки",
+                                    element: <DogsTab dogs={dogs}/>
+                                },
                                 {
                                     name: "Активные заказы",
                                     element: <ActiveOrdersWalker
@@ -157,9 +161,9 @@ export default function Profile() {
             <Box className={classes.user}>
                 <img className={classes.avatar} src="/logo_bot.png"/>
                 <Box className={classes.userInfo}>
-                    <Typography variant="h4">{userInfo.fullname}</Typography>
+                    <Typography variant="h4">{userInfo.name}</Typography>
                     <Typography variant="h6">{userInfo.email}</Typography>
-                    <Typography variant="h6">{userInfo.phone}</Typography>
+                    <Typography variant="h6">{userInfo.phone_number}</Typography>
                     <Button
                         type="submit"
                         fullWidth

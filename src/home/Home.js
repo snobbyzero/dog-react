@@ -1,5 +1,5 @@
 import {Box, FormControl, Typography} from "@material-ui/core";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import Paper from "@material-ui/core/Paper";
 import {Adjust} from "@material-ui/icons";
 import TextField from "@material-ui/core/TextField";
@@ -11,6 +11,9 @@ import Select from "@material-ui/core/Select";
 import InputLabel from "@material-ui/core/InputLabel";
 import Button from "@material-ui/core/Button";
 import MenuItem from "@material-ui/core/MenuItem";
+import {useHistory} from 'react-router-dom';
+import {getAccessToken} from "../utils/auth";
+import SendDialog from "./SendDialog";
 
 const useStyles = makeStyles((theme) => ({
     side: {
@@ -87,6 +90,24 @@ export default function Home() {
     const [stations, setStations] = useState([]);
     const [selectedStations, setSelectedStations] = useState([]);
     const [walkers, setWalkers] = useState([]);
+    const [dogs, setDogs] = useState([]);
+    const [open, setOpen] = useState(false);
+    const history = useHistory();
+
+    useEffect(() => {
+        const getDogs = async() => {
+            axios.get("https://fast-api-walking-v1.herokuapp.com/dog/all", {
+                headers: {
+                    "Authorization": `Bearer ${await getAccessToken()}`
+                }
+            })
+                .then(res => {
+                    setDogs(res.data);
+                })
+        }
+        getDogs()
+
+    })
 
     const getStations = (value, station) => {
         console.log(`station: ${station}`)
@@ -106,6 +127,14 @@ export default function Home() {
         })
     }
 
+    const goToProfile = (walker) => {
+        history.push("/profile/" + walker.id)
+    }
+
+    const sendButtonClick = (walker) => {
+
+    }
+
     return (
         <Box style={{display: "flex", alignItems: "flex-start"}}>
             <Box className={classes.walkers_box}>
@@ -113,14 +142,15 @@ export default function Home() {
                     [0, 1, 2, 3, 4, 5].map(walker => (
                         <Paper className={classes.walker}>
                             <img src="https://upload.wikimedia.org/wikipedia/ru/thumb/4/4d/Wojak.png/200px-Wojak.png"
-                                 className={classes.walkerImage}/>
+                                 className={classes.walkerImage} onClick={e => goToProfile(walker)}/>
                             <Box style={{justifyContent: "space-between"}}>
                                 <Box className={classes.walkerInfo}>
                                     <Typography variant="h6" style={{
                                         overflow: "hidden",
                                         whiteSpace: "wrap",
-                                        textOverflow: "ellipsis"
-                                    }}>Иванов Иван Иванович</Typography>
+                                        textOverflow: "ellipsis",
+                                        cursor: "pointer"
+                                    }} onClick={e => goToProfile(walker)}>Иванов Иван Иванович</Typography>
                                     <Typography style={{
                                         display: "-webkit-box",
                                         "-webkit-line-clamp": "3",
@@ -129,9 +159,10 @@ export default function Home() {
                                     }}>Работаю с понедельника по среду 9:00-15:00</Typography>
                                     <Typography variant="h6" color="secondary">500 руб. / час</Typography>
                                 </Box>
-                                <Button className={classes.sendButton} color="secondary" variant="outlined">Отправить
+                                <Button onClick={sendButtonClick} className={classes.sendButton} color="secondary" variant="outlined">Отправить
                                     заявку</Button>
                             </Box>
+                            <SendDialog open={open} setOpen={setOpen} id={walker.id}/>
                         </Paper>
                     ))
                 }

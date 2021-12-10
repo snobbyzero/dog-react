@@ -9,6 +9,7 @@ import {Memory} from "@material-ui/icons";
 import {Typography} from "@material-ui/core";
 import Box from "@material-ui/core/Box";
 import {getAccessToken} from "../utils/auth";
+import {useHistory} from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -42,6 +43,7 @@ const useStyles = makeStyles((theme) => ({
 export default function Header() {
     const classes = useStyles();
     const [isSignedIn, setIsSignedIn] = useState(false);
+    const history = useHistory();
 
     useEffect(() => {
         getAccessToken()
@@ -61,13 +63,13 @@ export default function Header() {
                     </Box>
                     { isSignedIn ?
                         <Button className={classes.username}>
-                            <Typography style={{fontWeight: "bold"}} variant="h5" color="primary">
-                                Username
+                            <Typography style={{fontWeight: "bold"}} variant="h5" color="primary" onClick={() => {history.push("/myprofile")}}>
+                                Мой профиль
                             </Typography>
                         </Button>
                             :
                         <Button variant="contained" className={classes.signin}>
-                            <Typography style={{fontWeight: "bold"}} variant="h5" color="primary">
+                            <Typography style={{fontWeight: "bold"}} variant="h5" color="primary" onClick={() => {history.push("/signin")}}>
                                 Sign In
                             </Typography>
                         </Button>

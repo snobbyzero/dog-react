@@ -13,6 +13,8 @@ import DialogActions from "@material-ui/core/DialogActions";
 import Button from "@material-ui/core/Button";
 import {DatePicker, DateTimePicker, MuiPickersUtilsProvider} from "@material-ui/pickers";
 import DateFnsUtils from '@date-io/date-fns';
+import axios from "axios";
+import {getAccessToken} from "../utils/auth";
 
 
 const useStyles = makeStyles((theme) => ({
@@ -36,7 +38,8 @@ const useStyles = makeStyles((theme) => ({
     dog_information: {
         display: "flex",
         flexDirection: "column",
-        alignItems: "space-between"
+        alignItems: "space-around",
+        margin: theme.spacing(2)
     },
     text: {
         margin: theme.spacing(1)
@@ -75,6 +78,7 @@ export default function DogsCards(props) {
     const [size, setSize] = useState(0);
     const [birth, setBirth] = useState(Date.now);
     const hiddenAvatarInput = useRef();
+    const [dogs, setDogs] = useState(props.dogs);
 
     const handleClose = () => {
         setOpen(false);
@@ -99,13 +103,39 @@ export default function DogsCards(props) {
         setBirth(dog.date_of_birth);
     }
 
-    const saveDog = () => {
+    const saveDog = async () => {
         setOpen(false);
-        console.log(avatar)
-        console.log(nickname)
-        console.log(breed)
-        console.log(size)
-        console.log(birth)
+        axios.post("https://fast-api-walking-v1.herokuapp.com/dog", {
+            breed: breed,
+            nickname: nickname,
+            size_in_kg: size,
+            date_of_birth: birth
+        }, {
+            headers: {
+                "Authorization": `Bearer ${await getAccessToken()}`
+            }
+        }).then(async res => {
+            console.log("DOG: ")
+            console.log(res.data)
+
+            setDogs([...dogs, res.data])
+            if (avatar) {
+                const id = res.data['id'];
+                const formData = new FormData();
+                formData.append('image', avatar);
+                console.log(await getAccessToken())
+                axios.post("https://fast-api-walking-v1.herokuapp.com/dog/avatar?id=" + id, formData, {
+                    headers: {
+                        "Authorization": `Bearer ${await getAccessToken()}`
+                    }
+                })
+                    .then(response => {
+                        console.log("DOG AVATAR:")
+                        console.log(response)
+                        setDogs([...dogs, response.data])
+                    })
+            }
+        })
     }
 
     const handleAvatarChange = (event) => {
@@ -118,14 +148,14 @@ export default function DogsCards(props) {
     return (
         <Box className={classes.root}>
         {
-            props.dogs.map(dog => (
+            dogs.map(dog => (
                 <Paper className={classes.paper} onClick={(dog) => changeDog(dog)}>
                     <img className={classes.img} src={dog.image} alt="dog img"/>
                     <Box className={classes.dog_information}>
                         <Typography className={classes.text}>{dog.nickname}</Typography>
                         <Typography className={classes.text}>{dog.breed}</Typography>
-                        <Typography className={classes.text}>{dog.size_in_kg}</Typography>
-                        <Typography className={classes.text}>{dog.date_of_birth}</Typography>
+                        <Typography className={classes.text}>{dog.size_in_kg} кг</Typography>
+                        <Typography className={classes.text}>{dog.date_of_birth.substr(0, dog.date_of_birth.indexOf('T'))}</Typography>
                     </Box>
                 </Paper>
             ))

@@ -15,13 +15,14 @@ const useStyles = makeStyles((theme) => ({
     },
     review: {
         margin: theme.spacing(1),
+        padding: theme.spacing(1),
         display: "flex",
         flexDirection: "column",
         width: "300px"
     },
     user: {
         display: "flex",
-        alignItems: "flex-start"
+        alignItems: "flex-start",
     },
     avatar: {
         width: "200px",
@@ -54,29 +55,8 @@ export default function WalkerProfile() {
     const classes = useStyles();
     const [userInfo, setUserInfo] = useState("");
     const [walkerInfo, setWalkerInfo] = useState("");
-    const [dogs, setDogs] = useState([]);
-    const [tabs, setTabs] = useState([]);
-    const [selectedTab, setSelectedTab] = useState(1);
-    const [orders, setOrders] = useState([]);
-    const [activeOrders, setActiveOrders] = useState([]);
-    const [completedOrders, setCompletedOrders] = useState([]);
-    const [waitingOrders, setWaitingOrders] = useState([]);
     const history = useHistory();
     const [reviews, setReviews] = useState([]);
-
-
-    const tabHandleChange = (event, newValue) => {
-        setSelectedTab(newValue)
-    }
-
-    function TabPanel(props) {
-        const {children, value, index, ...other} = props;
-        return (
-            <div {...other}>
-                {value === index && <Box p={3}>{children}</Box>}
-            </div>
-        );
-    }
 
     return (
         <Box className={classes.root}>

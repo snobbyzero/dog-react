@@ -90,7 +90,7 @@ export default function CompletedOrdersClient(props) {
                     </Paper>
                     <Paper className={classes.paper}>
                         <Typography variant="subtitle1">
-                            Статус: ожидается оплата или ожидается подтверждение или оплачен
+                            Статус: Оплачен или отказ
                         </Typography>
                     </Paper>
                     <Paper className={classes.paper}>

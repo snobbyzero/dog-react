@@ -17,19 +17,10 @@ const useStyles = makeStyles((theme) => ({
         marginBottom: theme.spacing(2)
     }
 }))
-export default function WalkerInfo() {
+export default function WalkerInfo(props) {
     const classes = useStyles()
 
     const [stations, setStations] = useState([]);
-    const [selectedStations, setSelectedStations] = useState([]);
-    const [price, setPrice] = useState(10);
-    const [practiceInYear, setPracticeInYear] = useState(0);
-    const [minSizeDog, setMinSizeDog] = useState(0);
-    const [maxSizeDog, setMaxSizeDog] = useState(1);
-    const [minAgeDog, setMinAgeDog] = useState(0);
-    const [maxAgeDog, setMaxAgeDog] = useState(1);
-    const [schedule, setSchedule] = useState("");
-    const [aboutWalker, setAboutWalker] = useState("");
 
     const getStations = (value, station) => {
         console.log(`station: ${station}`)
@@ -44,8 +35,9 @@ export default function WalkerInfo() {
                     "Authorization": "Token decae9911b8941c8e21ebd533d365620829cf431"
                 }
             }).then(res => {
-                const stations = res.data.suggestions.filter(station => selectedStations.map(st => st.data.name).indexOf(station.data.name) === -1);
+                const stations = res.data.suggestions.filter(station => props.selectedStations.map(st => st.data.name).indexOf(station.data.name) === -1);
                 setStations(stations);
+                console.log(stations)
         })
     }
 
@@ -58,7 +50,7 @@ export default function WalkerInfo() {
                 options={stations}
                 getOptionLabel={option => option.data.name}
                 onChange={(e, newValue) => {
-                    setSelectedStations(newValue)
+                    props.setSelectedStations(newValue)
                 }}
                 renderOption={option => {
                     return (
@@ -93,9 +85,12 @@ export default function WalkerInfo() {
                 step={25}
                 min={50}
                 max={1500}
-                value={price}
+                value={props.price}
                 valueLabelDisplay="on"
-                onChange={(e, newValue) => setPrice(parseInt(newValue))}
+                onChange={(e, newValue) => {
+                    console.log(props.price)
+                    props.setPrice(parseInt(newValue))
+                }}
             />
             <TextField
                 variant="outlined"
@@ -103,8 +98,8 @@ export default function WalkerInfo() {
                 required
                 fullWidth
                 label="Опыт работы (в годах)"
-                value={practiceInYear}
-                onChange={(e) => setPracticeInYear(e.target.value)}
+                value={props.practiceInYear}
+                onChange={(e) => props.setPracticeInYear(e.target.value)}
             />
             <Box style={{display: "flex", marginBottom: "10px"}}>
                 <TextField
@@ -114,8 +109,8 @@ export default function WalkerInfo() {
                     fullWidth
                     style={{marginRight: "10px"}}
                     label="Мин. возраст собаки"
-                    value={minAgeDog}
-                    onChange={(e) => setMinAgeDog(e.target.value)}
+                    value={props.minAgeDog}
+                    onChange={(e) => props.setMinAgeDog(e.target.value)}
                 />
                 <TextField
                     variant="outlined"
@@ -124,8 +119,8 @@ export default function WalkerInfo() {
                     fullWidth
                     style={{marginLeft: "10px"}}
                     label="Макс. возраст собаки"
-                    value={maxAgeDog}
-                    onChange={(e) => setMaxAgeDog(e.target.value)}
+                    value={props.maxAgeDog}
+                    onChange={(e) => props.setMaxAgeDog(e.target.value)}
                 />
             </Box>
             <Box style={{display: "flex", marginBottom: "10px"}}>
@@ -136,8 +131,8 @@ export default function WalkerInfo() {
                     required
                     fullWidth
                     label="Мин. вес собаки"
-                    value={minSizeDog}
-                    onChange={(e) => setMinSizeDog(e.target.value)}
+                    value={props.minSizeDog}
+                    onChange={(e) => props.setMinSizeDog(e.target.value)}
                 />
                 <TextField
                     variant="outlined"
@@ -146,8 +141,8 @@ export default function WalkerInfo() {
                     fullWidth
                     label="Макс. вес собаки"
                     style={{marginLeft: "10px"}}
-                    value={maxSizeDog}
-                    onChange={(e) => setMaxSizeDog(e.target.value)}
+                    value={props.maxSizeDog}
+                    onChange={(e) => props.setMaxSizeDog(e.target.value)}
                 />
             </Box>
             <TextField
@@ -155,11 +150,11 @@ export default function WalkerInfo() {
                 margin="normal"
                 required
                 fullWidth
-                rows={10}
+                rows={4}
                 multiline
                 label="Опишите свое расписание"
-                value={schedule}
-                onChange={(e) => setSchedule(e.target.value)}
+                value={props.schedule}
+                onChange={(e) => props.setSchedule(e.target.value)}
             />
             <TextField
                 variant="outlined"
@@ -169,8 +164,8 @@ export default function WalkerInfo() {
                 rows={10}
                 multiline
                 label="Расскажите о себе"
-                value={aboutWalker}
-                onChange={(e) => setAboutWalker(e.target.value)}
+                value={props.aboutWalker}
+                onChange={(e) => props.setAboutWalker(e.target.value)}
             />
         </Box>
     )

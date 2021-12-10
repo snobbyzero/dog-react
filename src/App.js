@@ -12,7 +12,7 @@ import Header from "./header/Header";
 import Profile from "./profile/Profile";
 import Edit from "./profile/Edit";
 import AddDog from "./signup/AddDog";
-import WalkerProfile from "./profile/WalkerProfile";
+import WalkerProfile from "./walker/WalkerProfile";
 
 
 function App() {
@@ -29,10 +29,10 @@ function App() {
                 <Route path='/' exact component={Home}/>
                 <Route path='/signin' exact component={SignIn}/>
                 <Route path='/signup' exact component={SignUp}/>
-                <Route path='/profile' exact component={Profile}/>
+                <Route path='/myprofile' exact component={Profile}/>
                 <Route path='/edit' exact component={Edit}/>
                 <Route path='/add-dog' exact component={AddDog}/>
-                <Route path='/walkerprofile' exact component={WalkerProfile}/>
+                <Route path='/profile/:id' render={(props) => <WalkerProfile {...props}/>}/>
             </Switch>
             </Box>
         </>
