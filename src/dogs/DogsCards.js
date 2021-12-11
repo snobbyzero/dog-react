@@ -1,4 +1,4 @@
-import React, {useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import Paper from "@material-ui/core/Paper";
 import Box from "@material-ui/core/Box";
@@ -42,7 +42,9 @@ const useStyles = makeStyles((theme) => ({
         margin: theme.spacing(2)
     },
     text: {
-        margin: theme.spacing(1)
+        margin: theme.spacing(1),
+        marginBottom: theme.spacing(1/2),
+        marginTop: theme.spacing(1/2),
     },
     avatar: {
         width: "130px",
@@ -67,7 +69,7 @@ const useStyles = makeStyles((theme) => ({
         color: theme.palette.primary.main
     }
 }))
-export default function DogsCards(props) {
+export default function DogsCards() {
     const classes = useStyles();
 
     const [open, setOpen] = React.useState(false);
@@ -78,7 +80,23 @@ export default function DogsCards(props) {
     const [size, setSize] = useState(0);
     const [birth, setBirth] = useState(Date.now);
     const hiddenAvatarInput = useRef();
-    const [dogs, setDogs] = useState(props.dogs);
+    const [dogs, setDogs] = useState([]);
+
+    useEffect(() => {
+        const getDogs = async () => {
+            axios.get("https://fast-api-walking-v1.herokuapp.com/dog/all", {
+                headers: {
+                    "Authorization": `Bearer ${await getAccessToken()}`
+                }
+            })
+                .then(res => {
+                    console.log("dogs");
+                    console.log(res.data);
+                    setDogs(res.data);
+                })
+        }
+        getDogs()
+    }, [])
 
     const handleClose = () => {
         setOpen(false);
@@ -95,8 +113,8 @@ export default function DogsCards(props) {
 
     const changeDog = (dog) => {
         setOpen(true);
-
-        setAvatar(dog.avatar)
+        console.log(dog)
+        //setAvatar(dog.avatar)
         setNickname(dog.nickname);
         setBreed(dog.breed);
         setSize(dog.size_in_kg);
@@ -149,13 +167,13 @@ export default function DogsCards(props) {
         <Box className={classes.root}>
         {
             dogs.map(dog => (
-                <Paper className={classes.paper} onClick={(dog) => changeDog(dog)}>
+                <Paper className={classes.paper} onClick={(e) => {changeDog(dog)}}>
                     <img className={classes.img} src={dog.image} alt="dog img"/>
                     <Box className={classes.dog_information}>
-                        <Typography className={classes.text}>{dog.nickname}</Typography>
-                        <Typography className={classes.text}>{dog.breed}</Typography>
-                        <Typography className={classes.text}>{dog.size_in_kg} кг</Typography>
-                        <Typography className={classes.text}>{dog.date_of_birth.substr(0, dog.date_of_birth.indexOf('T'))}</Typography>
+                        <Typography className={classes.text}>Кличка: {dog.nickname}</Typography>
+                        <Typography className={classes.text}>Порода: {dog.breed}</Typography>
+                        <Typography className={classes.text}>Вес: {dog.size_in_kg} кг</Typography>
+                        <Typography className={classes.text}>ДР: {dog.date_of_birth.substr(0, dog.date_of_birth.indexOf('T'))}</Typography>
                     </Box>
                 </Paper>
             ))

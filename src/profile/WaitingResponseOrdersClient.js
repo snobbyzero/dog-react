@@ -18,11 +18,12 @@ const useStyles = makeStyles((theme) => ({
     card: {
         display: "flex",
         flexDirection: "column",
+        margin: theme.spacing(2),
     },
     box: {
         display: "flex",
         justifyContent: "center",
-        alignItems: "center"
+        alignItems: "center",
     },
     paper: {
         margin: theme.spacing(2),
@@ -54,10 +55,10 @@ export default function WaitingResponseOrdersClient(props) {
                     <Box style={{display: 'flex', flexDirection: 'column'}}>
                         <Paper className={classes.paper}>
                             <Typography component="div" variant="h5">
-                                {order.dog.nickname}
+                                {order.Dog.nickname}
                             </Typography>
                             <Typography variant="subtitle1" color="text.secondary" component="div">
-                                {order.dog.date_of_birth}, {order.dog.size_in_kg}
+                                {order.Dog.date_of_birth}, {order.Dog.size_in_kg}
                             </Typography>
                         </Paper>
                         <Paper className={classes.paper}>
@@ -66,31 +67,31 @@ export default function WaitingResponseOrdersClient(props) {
                             </Typography>
                             <Divider/>
                             <Typography component="div" variant="subtitle1">
-                                {order.client.fullname}
+                                {order.User.name}
                             </Typography>
                             <Typography variant="subtitle1" color="text.secondary" component="div">
-                                {order.client.phone}
+                                {order.User.phone_number}
                             </Typography>
                             <Typography variant="subtitle1" color="text.secondary" component="div">
-                                {order.client.email}
+                                {order.User.email}
                             </Typography>
                         </Paper>
                     </Box>
                     <Box style={{display: "flex", flexDirection: "column", justifyContent: "space-around"}}>
                         <Paper className={classes.paper}>
                             <Typography variant="subtitle1">
-                                {order.order.datetime_of_walking}
+                                {order.Order.datetime_of_walking}
                             </Typography>
                             <Typography variant="subtitle1" style={{display: "flex", alignItems: "center"}}>
                                 <Timer style={{marginLeft: "-3px", marginRight: "3px"}}/>
-                                {order.order.numbers_of_hours}
+                                {order.Order.numbers_of_hours}
                             </Typography>
                             <div style={{display: "flex"}}>
                                 <Typography variant="subtitle1" style={{marginLeft: "3px", marginRight: "10px"}}>
                                     ₽
                                 </Typography>
                                 <Typography variant="subtitle1">
-                                    {order.order.price}
+                                    {order.Order.price}
                                 </Typography>
                             </div>
                         </Paper>

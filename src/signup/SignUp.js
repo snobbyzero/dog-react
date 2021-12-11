@@ -88,7 +88,6 @@ export default function SignUp() {
     const [passwordError, setPasswordError] = useState("");
     const [selectedStations, setSelectedStations] = useState([]);
     const [price, setPrice] = useState(10);
-    const [practiceInYear, setPracticeInYear] = useState(0);
     const [minSizeDog, setMinSizeDog] = useState(0);
     const [maxSizeDog, setMaxSizeDog] = useState(1);
     const [minAgeDog, setMinAgeDog] = useState(0);
@@ -125,6 +124,8 @@ export default function SignUp() {
             setFullnameError("Введите фамилию и имя")
         } else if (phone === "") {
             setPhoneError("Введите номер телефона")
+        } else if (!acceptTerms) {
+            setError("Примите пользовательское соглашение")
         } else {
             setLoading(true)
             setEmailError("")
@@ -153,7 +154,7 @@ export default function SignUp() {
                             formData.append('image', avatar);
                             axios.post("https://fast-api-walking-v1.herokuapp.com/user/avatar", formData, {
                                 headers: {
-                                    "Authorization": `Bearer ${await getAccessToken()}`
+                                    "Authorization": `Bearer ${res.data['Token']['access_token']}`
                                 }
                             })
                                 .then(response => {
@@ -161,7 +162,7 @@ export default function SignUp() {
                                     console.log(response)
                                 })
                         }
-                        console.log(selectedStations)
+                        console.log(selectedStations.map(station => station.value))
                         console.log(minSizeDog)
                         console.log(maxSizeDog)
                         console.log(minAgeDog)
@@ -169,7 +170,7 @@ export default function SignUp() {
 
                         await axios.post("https://fast-api-walking-v1.herokuapp.com/walker/", {
                             "price_per_hour": price,
-                            "stations": selectedStations,
+                            "stations": selectedStations.map(station => station.value),
                             "min_dog_size_in_kg": minSizeDog,
                             "max_dog_size_in_kg": maxSizeDog,
                             "min_dog_age_in_years": minAgeDog,
@@ -178,9 +179,15 @@ export default function SignUp() {
                             "about_walker": aboutWalker
                         }, {
                             headers: {
-                                "Authorization": `Bearer ${await getAccessToken()}`
+                                "Authorization": `Bearer ${res.data['Token']['access_token']}`
                             }
                         })
+                            .then(res => {
+                                console.log(res.data)
+                            })
+                            .catch(err => {
+                                console.log(err);
+                            })
                         setLoading(false)
                         history.push("/add-dog")
                         console.log(res);
@@ -190,10 +197,11 @@ export default function SignUp() {
                         console.log(err);
                         if (err.response) {
                             //console.log(err.response.data.detail)
-                            setError(err.response.data.detail)
+                            setError(err.response.data.detail[0].msg)
                         }
                     })
             } else {
+                console.log("CLIENT")
                 axios.post("https://fast-api-walking-v1.herokuapp.com/user", {
                     password: password,
                     name: fullname,
@@ -201,8 +209,8 @@ export default function SignUp() {
                     email: email,
                 })
                     .then(async res => {
-                        await setAccessToken(res.data['access_token']);
-                        await setRefreshToken(res.data['refresh_token']);
+                        await setAccessToken(res.data['Token']['access_token']);
+                        await setRefreshToken(res.data['Token']['refresh_token']);
                         if (avatar) {
                             const formData = new FormData();
                             formData.append('image', avatar);
@@ -216,9 +224,13 @@ export default function SignUp() {
                         history.push("/add-dog")
                         console.log(res);
                     })
-                    .catch(error => {
+                    .catch(err => {
                         setLoading(false)
-                        setError(error)
+                        console.log(err);
+                        if (err.response) {
+                            //console.log(err.response.data.detail)
+                            setError(err.response.data.detail)
+                        }
                     })
             }
         }
@@ -331,8 +343,6 @@ export default function SignUp() {
                                 setSelectedStations={setSelectedStations}
                                 price={price}
                                 setPrice={setPrice}
-                                practiceInYear={practiceInYear}
-                                setPracticeInYear={setPracticeInYear}
                                 minSizeDog={minSizeDog}
                                 setMinSizeDog={setMinSizeDog}
                                 maxSizeDog={maxSizeDog}
@@ -373,7 +383,6 @@ export default function SignUp() {
                         variant="contained"
                         color="primary"
                         className={classes.submit}
-                        onClick={signup}
                     >
                         {loading ? <CircularProgress size={24} color="inherit"/> : "Sign Up"}
                     </Button>

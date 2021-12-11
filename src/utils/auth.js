@@ -3,7 +3,7 @@ import axios from "axios";
 
 export async function getAccessToken() {
     const accessToken = localStorage.getItem("accessToken");
-    console.log(accessToken);
+    console.log(`access token in ls: ${accessToken}`)
     if (accessToken) {
         const expTime = jwt_decode(accessToken).exp;
         if (expTime * 1000 > new Date().getTime()) {
@@ -12,13 +12,13 @@ export async function getAccessToken() {
         }
     }
     const refreshToken = localStorage.getItem('refreshToken');
+    console.log(`refresh token in ls: ${refreshToken}`)
     if (refreshToken) {
         console.log("refresh token exists")
         console.log(refreshToken)
-        // TODO URL
-        await axios.post(`https://fast-api-walking-v1.herokuapp.com/user/token`, {}, {
+        await axios.post(`https://fast-api-walking-v1.herokuapp.com/token`, {}, {
             headers: {
-                Authorization: `Bearer ${await getRefreshToken}`
+                Authorization: `Bearer ${refreshToken}`
             }
         })
             .then((response) => {

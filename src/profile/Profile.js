@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
     },
     user: {
         display: "flex",
-        alignItems: "center"
+        margin: theme.spacing(1)
     },
     avatar: {
         width: "300px",
@@ -36,14 +36,19 @@ const useStyles = makeStyles((theme) => ({
     userInfo: {
         marginLeft: theme.spacing(2),
         display: "flex",
-        flexFlow: "column"
+        flexFlow: "column",
+        justifyContent: "start",
+        flexGrow: 1
+    },
+    submit: {
+        margin: theme.spacing(2),
+        marginBottom: theme.spacing(4)
     }
 }))
 
 export default function Profile() {
     const classes = useStyles();
     const [userInfo, setUserInfo] = useState("");
-    const [dogs, setDogs] = useState([]);
     const [tabs, setTabs] = useState([]);
     const [selectedTab, setSelectedTab] = useState(1);
     const [orders, setOrders] = useState([]);
@@ -64,17 +69,8 @@ export default function Profile() {
                 setUserInfo(res.data);
                 console.log(res);
 
-                if (res.data.client_id) {
-                    axios.get("https://fast-api-walking-v1.herokuapp.com/dog", {
-                        headers: {
-                            "Authorization": `Bearer ${accessToken}`
-                        }
-                    })
-                        .then(res => {
-                            console.log("dogs");
-                            console.log(res.data);
-                            setDogs(res.data);
-                        })
+                if (!res.data.walker_id) {
+                    console.log("not walker")
                     axios.get("https://fast-api-walking-v1.herokuapp.com/order/client_all", {
                         headers: {
                             "Authorization": `Bearer ${accessToken}`
@@ -87,26 +83,38 @@ export default function Profile() {
                             setTabs([
                                 {
                                     name: "Мои собаки",
-                                    element: <DogsTab dogs={dogs}/>
+                                    element: <DogsTab/>
                                 },
                                 {
                                     name: "Активные заказы",
                                     element: <ActiveOrdersClient
-                                        orders={orders.filter(order => new Date(order.datetime_of_walking) >= new Date() && order.walker_took_order === true)}/>
+                                        orders={res.data.filter(order => new Date(order.Order.datetime_of_walking) >= new Date() && order.Order.walker_took_order === true)}/>
                                 },
                                 {
                                     name: "Завершенные заказы",
                                     element: <CompletedOrdersClient
-                                        orders={orders.filter(order => new Date(order.datetime_of_walking) < new Date() && order.walker_took_order === true)}/>
+                                        orders={res.data.filter(order => {
+                                            console.log(new Date(order.Order.datetime_of_walking))
+                                            console.log(new Date())
+                                            console.log(new Date(order.Order.datetime_of_walking) < new Date())
+                                            return new Date(order.Order.datetime_of_walking) < new Date()
+                                        })}/>
                                 },
                                 {
                                     name: "Ожидают ответа",
                                     element: <WaitingResponseOrdersClient
-                                        orders={orders.filter(order => new Date(order.datetime_of_walking) < new Date() && (order.paid === null || order.client_confirmed_execution === null))}/>
+                                        orders={res.data.filter(order => (
+                                            new Date(order.Order.datetime_of_walking) < new Date() &&
+                                            order.Order.walker_took_order === true &&
+                                                (order.Order.paid === null || order.Order.client_confirmed_execution === null)
+                                            ||
+                                            (order.Order.walker_took_order === null && new Date(order.Order.datetime_of_walking) >= new Date())
+                                        ))}/>
                                 }
                             ])
                         })
                 } else {
+
                     axios.get("https://fast-api-walking-v1.herokuapp.com/order/walker_all", {
                         headers: {
                             "Authorization": `Bearer ${accessToken}`
@@ -118,22 +126,22 @@ export default function Profile() {
                             setTabs([
                                 {
                                     name: "Мои собаки",
-                                    element: <DogsTab dogs={dogs}/>
+                                    element: <DogsTab/>
                                 },
                                 {
                                     name: "Активные заказы",
                                     element: <ActiveOrdersWalker
-                                        orders={orders.filter(order => new Date(order.order.datetime_of_walking) >= new Date() && order.order.walker_took_order === true)}/>
+                                        orders={res.data.filter(order => new Date(order.order.datetime_of_walking) >= new Date() && order.order.walker_took_order === true)}/>
                                 },
                                 {
                                     name: "Завершенные заказы",
                                     element: <CompletedOrdersWalker
-                                        orders={orders.filter(order => new Date(order.order.datetime_of_walking) < new Date() && order.order.walker_took_order === true)}/>
+                                        orders={res.data.filter(order => new Date(order.order.datetime_of_walking) < new Date() && order.order.walker_took_order === true)}/>
                                 },
                                 {
                                     name: "Ожидают ответа",
                                     element: <WaitingResponseOrdersWalker
-                                        orders={orders.filter(order => new Date(order.order.datetime_of_walking) >= new Date() && order.order.walker_took_order === null)}/>
+                                        orders={res.data.filter(order => new Date(order.order.datetime_of_walking) >= new Date() && order.order.walker_took_order === null)}/>
                                 }
                             ])
                         })
@@ -160,10 +168,12 @@ export default function Profile() {
         <Box className={classes.root}>
             <Box className={classes.user}>
                 <img className={classes.avatar} src="/logo_bot.png"/>
-                <Box className={classes.userInfo}>
-                    <Typography variant="h4">{userInfo.name}</Typography>
-                    <Typography variant="h6">{userInfo.email}</Typography>
-                    <Typography variant="h6">{userInfo.phone_number}</Typography>
+                <Box style={{display: "flex", flexDirection: "column"}}>
+                    <Box className={classes.userInfo}>
+                        <Typography variant="h4">Имя: {userInfo.name}</Typography>
+                        <Typography variant="h6">Почта: {userInfo.email}</Typography>
+                        <Typography variant="h6">Тел. номер: {userInfo.phone_number}</Typography>
+                    </Box>
                     <Button
                         type="submit"
                         fullWidth
@@ -173,7 +183,7 @@ export default function Profile() {
                         className={classes.submit}
                         onClick={() => history.push("/edit")}
                     >
-                        Редактировать информацию
+                        Редактировать
                     </Button>
                 </Box>
             </Box>

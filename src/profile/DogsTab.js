@@ -1,11 +1,9 @@
 import DogsCards from "../dogs/DogsCards";
-import React from "react";
+import React, {useEffect, useState} from "react";
 
-export default function DogsTab(props) {
-    // TODO
+export default function DogsTab() {
+
     return (
-        <>
-            <DogsCards dogs={props.dogs}/>
-        </>
+            <DogsCards/>
     )
 }

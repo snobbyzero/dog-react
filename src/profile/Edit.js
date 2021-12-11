@@ -1,4 +1,4 @@
-import React, {useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {FormControl, FormLabel, Radio, RadioGroup, Typography} from "@material-ui/core";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
@@ -92,7 +92,6 @@ export default function Edit() {
     const [passwordError, setPasswordError] = useState("");
     const [selectedStations, setSelectedStations] = useState([]);
     const [price, setPrice] = useState(10);
-    const [practiceInYear, setPracticeInYear] = useState(0);
     const [minSizeDog, setMinSizeDog] = useState(0);
     const [maxSizeDog, setMaxSizeDog] = useState(1);
     const [minAgeDog, setMinAgeDog] = useState(0);
@@ -100,8 +99,51 @@ export default function Edit() {
     const [schedule, setSchedule] = useState("");
     const [aboutWalker, setAboutWalker] = useState("");
     const hiddenAvatarInput = useRef();
+    const [userInfo, setUserInfo] = useState();
+    const [walkerInfo, setWalkerInfo] = useState();
+    const [userType, setUserType] = useState('walker');
 
-    const [userType, setUserType] = React.useState('walker');
+    useEffect(() => {
+        const getUser = async () => {
+            axios.get("https://fast-api-walking-v1.herokuapp.com/user/curr", {
+                headers: {
+                    "Authorization": `Bearer ${await getAccessToken()}`
+                }
+            })
+                .then(async res => {
+                    console.log(res.data)
+                    setUserInfo(res.data);
+                    setFullname(res.data.name)
+                    setEmail(res.data.email)
+                    setAvatar(res.data.avatar)
+                    setPhone(res.data.phone_number)
+                    if (res.data.walker_id != null) {
+                        axios.get("https://fast-api-walking-v1.herokuapp.com/walker/curr", {
+                            headers: {
+                                "Authorization": `Bearer ${await getAccessToken()}`
+                            }
+                        })
+                            .then(response => {
+                                console.log(response.data)
+                                setWalkerInfo(response.data.Walker);
+                                setPrice(response.data.Walker.price_per_hour)
+                                setSelectedStations(response.data.Walker.stations.map(station => {
+                                    return {"value": station, "data": {color: "", name: station}}
+                                }))
+                                setMinSizeDog(response.data.Walker.min_dog_size_in_kg)
+                                setMaxSizeDog(response.data.Walker.max_dog_size_in_kg)
+                                setMinAgeDog(response.data.Walker.min_dog_age_in_years)
+                                setMaxAgeDog(response.data.Walker.max_dog_age_in_years)
+                                setSchedule(response.data.Walker.schedule)
+                                setAboutWalker(response.data.Walker.about_walker)
+                            })
+                    } else {
+                        setUserType('client');
+                    }
+                })
+        }
+        getUser()
+    }, [])
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -153,9 +195,6 @@ export default function Edit() {
                 })
                     .then(async res => {
                         console.log(res.data)
-                        await setAccessToken(res.data['Token']['access_token']);
-                        await setRefreshToken(res.data['Token']['refresh_token']);
-                        console.log(await getAccessToken())
                         if (avatar) {
                             const formData = new FormData();
                             formData.append('image', avatar);
@@ -170,14 +209,10 @@ export default function Edit() {
                                 })
                         }
                         console.log(selectedStations)
-                        console.log(minSizeDog)
-                        console.log(maxSizeDog)
-                        console.log(minAgeDog)
-                        console.log(maxAgeDog)
 
                         await axios.post("https://fast-api-walking-v1.herokuapp.com/walker/", {
                             "price_per_hour": price,
-                            "stations": selectedStations,
+                            "stations": selectedStations.map(station => station.value),
                             "min_dog_size_in_kg": minSizeDog,
                             "max_dog_size_in_kg": maxSizeDog,
                             "min_dog_age_in_years": minAgeDog,
@@ -198,7 +233,7 @@ export default function Edit() {
                         console.log(err);
                         if (err.response) {
                             //console.log(err.response.data.detail)
-                            setError(err.response.data.detail)
+                            setError(err.response.data.detail[0].msg)
                         }
                     })
             } else {
@@ -230,7 +265,10 @@ export default function Edit() {
                     })
                     .catch(error => {
                         setLoading(false)
-                        setError(error)
+                        if (error.response) {
+                            //console.log(err.response.data.detail)
+                            setError(error.response.data.detail[0].msg)
+                        }
                     })
             }
         }
@@ -327,8 +365,6 @@ export default function Edit() {
                                 setSelectedStations={setSelectedStations}
                                 price={price}
                                 setPrice={setPrice}
-                                practiceInYear={practiceInYear}
-                                setPracticeInYear={setPracticeInYear}
                                 minSizeDog={minSizeDog}
                                 setMinSizeDog={setMinSizeDog}
                                 maxSizeDog={maxSizeDog}

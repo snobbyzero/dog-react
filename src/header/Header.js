@@ -52,17 +52,17 @@ export default function Header() {
                     setIsSignedIn(true)
                 }
             })
-    })
+    }, [])
 
     return (
         <div className={classes.root}>
             <AppBar position="static" className={classes.appbar}>
                 <Toolbar style={{height: "90px"}}>
-                    <Box className={classes.logo_box}>
+                    <Box className={classes.logo_box} style={{cursor: "pointer"}} onClick={() => {history.push("/")}}>
                         <img className={classes.logo} src="/logo_right.png"/>
                     </Box>
                     { isSignedIn ?
-                        <Button className={classes.username}>
+                        <Button className={classes.signin}>
                             <Typography style={{fontWeight: "bold"}} variant="h5" color="primary" onClick={() => {history.push("/myprofile")}}>
                                 Мой профиль
                             </Typography>

@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import makeStyles from "@material-ui/core/styles/makeStyles";
 import {Box, Typography} from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
@@ -21,6 +21,28 @@ export default function WalkerInfo(props) {
     const classes = useStyles()
 
     const [stations, setStations] = useState([]);
+
+    useEffect(() => {
+        console.log(props.selectedStations)
+        props.selectedStations.map(station => {
+            axios.post(
+                "https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/metro",
+                {
+                    city: "Москва",
+                    query: station.value
+                },
+                {
+                    headers: {
+                        "Authorization": "Token decae9911b8941c8e21ebd533d365620829cf431"
+                    }
+                }).then(res => {
+                    console.log(res.data)
+                    console.log(station)
+                    station.data.color = "#" + res.data.suggestions[0].data.color
+            })
+
+        })
+    }, [props.selectedStations])
 
     const getStations = (value, station) => {
         console.log(`station: ${station}`)
@@ -46,6 +68,7 @@ export default function WalkerInfo(props) {
             <Typography style={{marginBottom: "20px"}}>Введите станции метро, где вы можете работать. Если неважно, оставьте полем пустым.</Typography>
             <Autocomplete
                 multiple
+                value={props.selectedStations ? props.selectedStations : []}
                 className={classes.stations}
                 options={stations}
                 getOptionLabel={option => option.data.name}
@@ -91,15 +114,6 @@ export default function WalkerInfo(props) {
                     console.log(props.price)
                     props.setPrice(parseInt(newValue))
                 }}
-            />
-            <TextField
-                variant="outlined"
-                margin="normal"
-                required
-                fullWidth
-                label="Опыт работы (в годах)"
-                value={props.practiceInYear}
-                onChange={(e) => props.setPracticeInYear(e.target.value)}
             />
             <Box style={{display: "flex", marginBottom: "10px"}}>
                 <TextField

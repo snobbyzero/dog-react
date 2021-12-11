@@ -77,7 +77,7 @@ export default function SignIn() {
             setPasswordError("")
             setError("")
             setLoading(true)
-            axios.post("https://fast-api-walking-v1.herokuapp.com/user/auth", {
+            axios.post("https://fast-api-walking-v1.herokuapp.com/login", {
                 email: email,
                 password: password
             }).then(res => {
@@ -86,8 +86,12 @@ export default function SignIn() {
                 setRefreshToken(res.data['refresh_token']);
                 console.log(res);
                 setLoading(false);
+                history.push("/")
             }).catch(err => {
-                setError(err)
+                if (err.response && err.response.data) {
+                    console.log(err.response.data)
+                    setError(err.response.data.detail[0].msg)
+                }
                 setLoading(false)
             })
         }
