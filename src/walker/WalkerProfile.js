@@ -74,7 +74,7 @@ export default function WalkerProfile(props) {
                 setWalkerInfo(res.data);
             })
 
-        axios.get("https://fast-api-walking-v1.herokuapp.com/order/reviews/?id=" + props.match.params.id)
+        axios.get("https://fast-api-walking-v1.herokuapp.com/order/reviews?walker_user_id=" + props.match.params.id)
             .then(async res => {
                 await Promise.all(res.data.map(async review => {
                     await axios.get("https://fast-api-walking-v1.herokuapp.com/user/?id=" + review.client_id)
@@ -176,15 +176,15 @@ export default function WalkerProfile(props) {
                                                      src="https://upload.wikimedia.org/wikipedia/ru/thumb/4/4d/Wojak.png/200px-Wojak.png"/>
                                                 <Box style={{display: "flex", alignItems: "center", justifyContent: "space-between", flexGrow: 1}}>
                                                      <Typography style={{overflow: "hidden", whiteSpace: "wrap", textOverflow: "ellipsis", flexGrow: 1}}>
-                                                         Иванов Иван
+                                                         {review.name}
                                                      </Typography>
                                                     <Box style={{display: "flex", marginRight: "10px", alignItems: "center"}}>
                                                         <Star style={{color: "#FFCD3C"}}/>
-                                                        <Typography>0</Typography>
+                                                        <Typography>{review.rating ? review.rating : 0}</Typography>
                                                     </Box>
                                                 </Box>
                                             </Box>
-                                            <Typography className={classes.reviewText}>Отзыв</Typography>
+                                            <Typography className={classes.reviewText}>{review.review}</Typography>
                                         </Paper>
                                     ))
                                 }

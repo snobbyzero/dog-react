@@ -2,18 +2,14 @@ import React, {useEffect, useState} from "react";
 import axios from "axios";
 import {getAccessToken} from "../utils/auth";
 import {AppBar, makeStyles, Typography} from "@material-ui/core";
-import ActiveOrdersWalker from "./ActiveOrdersWalker";
-import CompletedOrdersWalker from "./CompletedOrdersWalker";
 import DogsTab from "./DogsTab";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import Box from "@material-ui/core/Box";
-import ActiveOrdersClient from "./ActiveOrdersClient";
-import CompletedOrdersClient from "./CompletedOrdersClient";
-import WaitingResponseOrdersClient from "./WaitingResponseOrdersClient";
-import WaitingResponseOrdersWalker from "./WaitingResponseOrdersWalker";
 import Button from "@material-ui/core/Button";
 import {useHistory} from 'react-router-dom';
+import Orders from "./Orders";
+import Reviews from "./Reviews";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -49,13 +45,13 @@ const useStyles = makeStyles((theme) => ({
 export default function Profile() {
     const classes = useStyles();
     const [userInfo, setUserInfo] = useState("");
+    const [avatar, setAvatar] = useState("")
     const [tabs, setTabs] = useState([]);
     const [selectedTab, setSelectedTab] = useState(1);
-    const [orders, setOrders] = useState([]);
     const [activeOrders, setActiveOrders] = useState([]);
-    const [completedOrders, setCompletedOrders] = useState([]);
-    const [waitingOrders, setWaitingOrders] = useState([]);
+    const [endedOrders, setEndedOrders] = useState([]);
     const history = useHistory();
+
 
     useEffect(async () => {
         const accessToken = await getAccessToken();
@@ -67,10 +63,11 @@ export default function Profile() {
         })
             .then(res => {
                 setUserInfo(res.data);
+                setAvatar(res.data.id)
                 console.log(res);
 
                 if (!res.data.walker_id) {
-                    console.log("not walker")
+                    console.log("client")
                     axios.get("https://fast-api-walking-v1.herokuapp.com/order/client_all", {
                         headers: {
                             "Authorization": `Bearer ${accessToken}`
@@ -79,77 +76,154 @@ export default function Profile() {
                         .then(res => {
                             console.log("orders client")
                             console.log(res.data)
-                            setOrders(res.data)
+                            const actOrders = res.data.filter(order => {
+                                const datetimeOfWalking = new Date(order.Order.datetime_of_walking);
+                                const datetimeOfEndWalking = new Date(order.Order.datetime_of_walking);
+                                datetimeOfEndWalking.setHours(datetimeOfEndWalking.getHours() + order.Order.numbers_of_hours)
+                                const nowDate = new Date();
+                                if (datetimeOfEndWalking >= nowDate && datetimeOfWalking <= nowDate && order.Order.walker_took_order === true) {
+                                    return true;
+                                } else if (datetimeOfWalking > nowDate && order.Order.walker_took_order === true) {
+                                    return true;
+                                } else if (datetimeOfWalking > nowDate && order.Order.walker_took_order == null) {
+                                    return true
+                                } else if (datetimeOfEndWalking < nowDate && order.Order.client_confirmed_execution === true && (order.Order.paid === false || order.Order.paid == null)) {
+                                    return true
+                                } else if (datetimeOfEndWalking < nowDate && order.Order.walker_took_order === true && order.Order.client_confirmed_execution === null) {
+                                    return true
+                                }
+                                console.log("false")
+                                return false
+                            })
+                            setActiveOrders(actOrders)
+                            const endOrders = res.data.filter(order => {
+                                const datetimeOfWalking = new Date(order.Order.datetime_of_walking);
+                                const datetimeOfEndWalking = new Date(order.Order.datetime_of_walking);
+                                datetimeOfEndWalking.setHours(datetimeOfEndWalking.getHours() + order.Order.numbers_of_hours)
+                                const nowDate = new Date();
+                                if (datetimeOfEndWalking < nowDate && order.Order.paid === true) {
+                                    return true;
+                                } else if (order.Order.walker_took_order === false) {
+                                    return true;
+                                } else if (order.Order.client_confirmed_execution === false) {
+                                    return true
+                                } else if (datetimeOfWalking < nowDate && order.Order.walker_took_order == null) {
+                                    return true;
+                                }
+                                return false;
+                            })
+                            setEndedOrders(endOrders)
                             setTabs([
                                 {
                                     name: "Мои собаки",
-                                    element: <DogsTab/>
+                                    element: <DogsTab key={0}/>
                                 },
                                 {
-                                    name: "Активные заказы",
-                                    element: <ActiveOrdersClient
-                                        orders={res.data.filter(order => new Date(order.Order.datetime_of_walking) >= new Date() && order.Order.walker_took_order === true)}/>
+                                    name: "Заказы",
+                                    element: <Orders key={activeOrders.length+"_"} walker_id={userInfo.walker_id}
+                                        orders={activeOrders} endedOrders={endedOrders} setActiveOrders={(state) => {setActiveOrders(state)}} setEndedOrders={(state) => {setEndedOrders(state)}}/>
                                 },
                                 {
-                                    name: "Завершенные заказы",
-                                    element: <CompletedOrdersClient
-                                        orders={res.data.filter(order => {
-                                            console.log(new Date(order.Order.datetime_of_walking))
-                                            console.log(new Date())
-                                            console.log(new Date(order.Order.datetime_of_walking) < new Date())
-                                            return new Date(order.Order.datetime_of_walking) < new Date()
-                                        })}/>
-                                },
-                                {
-                                    name: "Ожидают ответа",
-                                    element: <WaitingResponseOrdersClient
-                                        orders={res.data.filter(order => (
-                                            new Date(order.Order.datetime_of_walking) < new Date() &&
-                                            order.Order.walker_took_order === true &&
-                                                (order.Order.paid === null || order.Order.client_confirmed_execution === null)
-                                            ||
-                                            (order.Order.walker_took_order === null && new Date(order.Order.datetime_of_walking) >= new Date())
-                                        ))}/>
+                                    name: "История",
+                                    element: <Orders key={"_"+endedOrders.length} walker_id={userInfo.walker_id}
+                                        orders={endedOrders}/>
                                 }
                             ])
                         })
                 } else {
 
-                    axios.get("https://fast-api-walking-v1.herokuapp.com/order/walker_all", {
+                    axios.get("https://fast-api-walking-v1.herokuapp.com/order/client_all", {
                         headers: {
                             "Authorization": `Bearer ${accessToken}`
                         }
                     })
-                        .then(res => {
-                            setOrders(res.data);
-                            console.log(res.data)
-                            setTabs([
-                                {
-                                    name: "Мои собаки",
-                                    element: <DogsTab/>
-                                },
-                                {
-                                    name: "Активные заказы",
-                                    element: <ActiveOrdersWalker
-                                        orders={res.data.filter(order => new Date(order.order.datetime_of_walking) >= new Date() && order.order.walker_took_order === true)}/>
-                                },
-                                {
-                                    name: "Завершенные заказы",
-                                    element: <CompletedOrdersWalker
-                                        orders={res.data.filter(order => new Date(order.order.datetime_of_walking) < new Date() && order.order.walker_took_order === true)}/>
-                                },
-                                {
-                                    name: "Ожидают ответа",
-                                    element: <WaitingResponseOrdersWalker
-                                        orders={res.data.filter(order => new Date(order.order.datetime_of_walking) >= new Date() && order.order.walker_took_order === null)}/>
+                        .then(resp => {
+                            console.log("orders client")
+                            console.log(resp.data)
+
+                            axios.get("https://fast-api-walking-v1.herokuapp.com/order/walker_all", {
+                                headers: {
+                                    "Authorization": `Bearer ${accessToken}`
                                 }
-                            ])
+                            })
+                                .then(response => {
+                                    console.log("orders walker")
+                                    console.log(response.data)
+
+                                    const actOrders = [...resp.data, ...response.data].filter(order => {
+                                        const datetimeOfWalking = new Date(order.Order.datetime_of_walking);
+                                        const datetimeOfEndWalking = new Date(order.Order.datetime_of_walking);
+                                        datetimeOfEndWalking.setHours(datetimeOfEndWalking.getHours() + order.Order.numbers_of_hours)
+                                        const nowDate = new Date();
+                                        if (datetimeOfEndWalking >= nowDate && datetimeOfWalking <= nowDate && order.Order.walker_took_order === true) {
+                                            return true;
+                                        } else if (datetimeOfWalking > nowDate && order.Order.walker_took_order === true) {
+                                            return true;
+                                        } else if (datetimeOfWalking > nowDate && order.Order.walker_took_order == null) {
+                                            return true
+                                        } else if (datetimeOfEndWalking < nowDate && order.Order.client_confirmed_execution === true && (order.Order.paid === false || order.Order.paid == null)) {
+                                            return true
+                                        } else if (datetimeOfEndWalking < nowDate && order.Order.walker_took_order === true && order.Order.client_confirmed_execution === null) {
+                                            return true
+                                        }
+                                        return false
+                                    })
+                                    setActiveOrders(actOrders)
+                                    const endOrders = [...resp.data, ...response.data].filter(order => {
+                                        const datetimeOfWalking = new Date(order.Order.datetime_of_walking);
+                                        const datetimeOfEndWalking = new Date(order.Order.datetime_of_walking);
+                                        datetimeOfEndWalking.setHours(datetimeOfEndWalking.getHours() + order.Order.numbers_of_hours)
+                                        const nowDate = new Date();
+                                        if (datetimeOfEndWalking < nowDate && order.Order.paid === true) {
+                                            return true;
+                                        } else if (order.Order.walker_took_order === false) {
+                                            return true;
+                                        } else if (order.Order.client_confirmed_execution === false) {
+                                            return true
+                                        } else if (datetimeOfWalking < nowDate && order.Order.walker_took_order == null) {
+                                            return true;
+                                        }
+                                        return false;
+                                    })
+                                    setEndedOrders(endOrders)
+
+                                    setTabs([
+                                        {
+                                            name: "Мои собаки",
+                                            element: <DogsTab key={3}/>
+                                        },
+                                        {
+                                            name: "Заказы",
+                                            element: <Orders key={activeOrders.length+"_"} walker_id={res.data.walker_id}
+                                                             orders={activeOrders} endedOrders={endedOrders} setActiveOrders={(state) => {setActiveOrders(state)}} setEndedOrders={(state) => {setEndedOrders(state)}}/>
+                                        },
+                                        {
+                                            name: "История",
+                                            element: <Orders key={"_"+endedOrders.length} walker_id={res.data.walker_id}
+                                                orders={endedOrders}/>
+                                        },
+                                        {
+                                            name: "Отзывы",
+                                            element: <Reviews key={6} id={res.data.id}/>
+                                        }
+                                    ])
+                                })
                         })
                 }
             })
 
 
     }, [])
+
+
+    useEffect(() => {
+        console.log("ACTIVE ORDERS")
+        console.log(activeOrders)
+    }, [activeOrders])
+
+    useEffect(() => {
+        console.log(activeOrders)
+    }, [true])
 
     const tabHandleChange = (event, newValue) => {
         setSelectedTab(newValue)
@@ -167,7 +241,7 @@ export default function Profile() {
     return (
         <Box className={classes.root}>
             <Box className={classes.user}>
-                <img className={classes.avatar} src="/logo_bot.png"/>
+                <img className={classes.avatar} src={avatar}/>
                 <Box style={{display: "flex", flexDirection: "column"}}>
                     <Box className={classes.userInfo}>
                         <Typography variant="h4">Имя: {userInfo.name}</Typography>
@@ -191,7 +265,7 @@ export default function Profile() {
                 <AppBar position="static" color="secondary">
                     <Tabs value={selectedTab} onChange={tabHandleChange}>
                         {tabs.map((tab, key) => (
-                            <Tab label={tab.name} key={key}/>
+                            <Tab label={tab.name} key={tab.element.key}/>
                         ))
                         }
                     </Tabs>
@@ -200,7 +274,17 @@ export default function Profile() {
                     tabs.map((tab, key) => (
                         <TabPanel value={selectedTab} index={key}>
                             {
-                                tab.element
+                                tab.name === 'Заказы' ?
+                                    <Orders key={activeOrders} walker_id={userInfo.walker_id}
+                                            orders={activeOrders} endedOrders={endedOrders} setActiveOrders={(state) => {setActiveOrders(state)}} setEndedOrders={(state) => {setEndedOrders(state)}}/>
+                                :
+                                    tab.name === 'История' ?
+                                        <Orders key={endedOrders} walker_id={userInfo.walker_id}
+                                                orders={endedOrders}/>
+                                :
+                                    tab.element
+
+
                             }
                         </TabPanel>
                     ))
